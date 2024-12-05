@@ -1,0 +1,25 @@
+{
+  "name": "@data-fair/frame",
+  "version": "0.0.0",
+  "description": "An iframe wrapper for powerful web app integrations.",
+  "main": "dist/frame.min.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "devDependencies": {
+    "eslint": "^9.16.0",
+    "neostandard": "^0.11.9",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "data-fair",
+    "iframe",
+    "integration"
+  ],
+  "author": "Alban Mouton <alban.mouton@gmail.com>",
+  "license": "MIT"
+}
