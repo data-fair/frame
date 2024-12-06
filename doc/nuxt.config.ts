@@ -34,6 +34,8 @@ export default defineNuxtConfig({
       ],
     },
   },
+  css: ['~/styles/main.css'],
+  vue: { compilerOptions: { isCustomElement: tag => ['d-frame'].includes(tag) } },
   build: {
     transpile: ['vuetify'],
   },
