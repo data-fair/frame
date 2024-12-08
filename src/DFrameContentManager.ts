@@ -1,10 +1,53 @@
 import { type Message, isInitParentMessage } from './message-types'
 
+const windowEventTypes = [
+  'animationstart',
+  'webkitAnimationStart',
+  'animationiteration',
+  'webkitAnimationIteration',
+  'animationend',
+  'webkitAnimationEnd',
+  'input',
+  'mouseup',
+  'mousedown',
+  'orientationchange',
+  'afterprint',
+  'beforeprint',
+  'readystatechange',
+  'touchstart',
+  'touchend',
+  'touchcancel',
+  'transitionstart',
+  'webkitTransitionStart',
+  'MSTransitionStart',
+  'oTransitionStart',
+  'otransitionstart', 'transitioniteration',
+  'webkitTransitionIteration',
+  'MSTransitionIteration',
+  'oTransitionIteration',
+  'otransitioniteration', 'transitionend',
+  'webkitTransitionEnd',
+  'MSTransitionEnd',
+  'oTransitionEnd',
+  'otransitionend', 'resize'
+]
+
 export default class DFrameContentManager {
   private pendingCheckHeight: boolean = false
   private debug: boolean = false
+  private throttledCheckHeight: () => void
 
   constructor () {
+    const afCallback = () => {
+      this.checkHeight()
+      this.pendingCheckHeight = false
+    }
+    this.throttledCheckHeight = () => {
+      if (this.pendingCheckHeight) return
+      this.pendingCheckHeight = true
+      requestAnimationFrame(afCallback)
+    }
+
     if (typeof window === 'undefined') return
     window.addEventListener('message', (e) => this.onMessage(e))
     // simple handshake for initialization
@@ -36,16 +79,13 @@ export default class DFrameContentManager {
     this.log('debug', 'init')
     this.checkHeight()
     this.createMutationObserver()
+    this.createWindowEventListeners()
   }
 
   createMutationObserver () {
-    const observer = new window.MutationObserver(() => {
-      if (this.pendingCheckHeight) return
-      this.pendingCheckHeight = true
-      requestAnimationFrame(() => this.checkHeight())
-    })
     const body = document.querySelector('body')
     if (!body) throw new Error('DFrameContentManager was initialized before the HTML body')
+    const observer = new window.MutationObserver(this.throttledCheckHeight)
     observer.observe(body, {
       attributes: false,
       attributeOldValue: false,
@@ -56,15 +96,22 @@ export default class DFrameContentManager {
     })
   }
 
+  createWindowEventListeners () {
+    for (const eventType of windowEventTypes) {
+      window.addEventListener(eventType, this.throttledCheckHeight, { passive: true })
+    }
+  }
+
   checkHeight () {
     const elements = document.querySelectorAll('[data-iframe-height]')
     let max = 0
     for (const element of elements) {
+      const dataAttribute = element.getAttribute('data-iframe-height')
       const bottom = element.getBoundingClientRect().bottom +
-        parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom'))
+        parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom')) +
+        (dataAttribute ? parseFloat(dataAttribute) : 0)
       if (bottom > max) max = bottom
     }
     this.postMessageToParent('height', max)
-    this.pendingCheckHeight = false
   }
 }

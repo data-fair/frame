@@ -9,7 +9,7 @@
       <v-btn
         color="primary"
         variant="elevated"
-        data-iframe-height="20"
+        data-iframe-height
         @click="height += 50"
       >
         Add 50px
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../../src/d-frame-content'
+import 'iframe-resizer/js/iframeResizer.contentWindow.js'
 
 const height = ref(0)
 </script>

@@ -23,7 +23,6 @@
     <d-frame
       src="/children/resize"
       style="max-width:300px;"
-      debug
     />
   </v-container>
 </template>
