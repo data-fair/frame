@@ -1,4 +1,4 @@
-import{V as je}from"./bIXowLDt.js";import{d as Le,o as Se,t as He,C as Ae,A as Be,x as ne}from"./DqtgKJR1.js";/* empty css        */import"./BpPoJlk5.js";var Ve={exports:{}};(function(te){console.info(`
+import{V as je}from"./UPx_zYnn.js";import{d as Le,o as Se,t as He,C as Ae,A as Be,x as ne}from"./CMzE-ULa.js";/* empty css        */import"./1lwhcIaV.js";var Ve={exports:{}};(function(te){console.info(`
 IFRAME-RESIZER
 
 Iframe-Resizer 5 is now available via the following two packages:
