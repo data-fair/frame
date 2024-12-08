@@ -1,1 +1,0 @@
-import{_ as e,C as r,A as o,t as a,x as n}from"./B1i_bsvS.js";import{V as s}from"./DIL9KtL5.js";/* empty css        */import"./Ba5KhyXO.js";const c={};function i(f,t){return a(),r(s,null,{default:o(()=>t[0]||(t[0]=[n("p",null,"Test",-1)])),_:1})}const d=e(c,[["render",i]]);export{d as default};
