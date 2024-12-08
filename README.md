@@ -7,3 +7,5 @@ Supports:
   - navigation syncing
   - aspect ratio management
   - dynamic resize
+
+See [the documentation](https://data-fair.github.io/frame/latest/).

@@ -21,7 +21,7 @@
       The iframe height is adjusted dynamically after user interactions.
     </p>
     <d-frame
-      src="/children/resize"
+      :src="`${$config.app.baseURL}children/resize`"
       style="max-width:300px;"
     />
   </v-container>

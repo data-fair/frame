@@ -12,7 +12,7 @@
       If a height is applied to the d-frame element through CSS it is respected. The following example has <code>style="height:100px;"</code>.
     </p>
     <d-frame
-      src="/children/basic"
+      :src="`${$config.app.baseURL}children/basic`"
       style="height:100px;max-width:300px;"
     />
 
@@ -29,7 +29,7 @@
       <li>&rArr; 21 / 9</li>
     </ul>
     <d-frame
-      src="/children/basic"
+      :src="`${$config.app.baseURL}children/basic`"
       style="max-width:300px;"
     />
 
@@ -41,7 +41,7 @@
     </p>
     <d-frame
       debug
-      src="/children/basic"
+      :src="`${$config.app.baseURL}children/basic`"
       aspect-ratio="2"
       style="max-width:300px;"
     />

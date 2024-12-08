@@ -9,7 +9,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "build:main": "TARGET=https://data-fair.github.io/frame/main/ nuxt generate",
+    "build:latest": "TARGET=https://data-fair.github.io/frame/latest/ nuxt generate"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",

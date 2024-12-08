@@ -7,14 +7,21 @@
     "doc": "doc"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "^19.6.0",
+    "@koumoul/gh-pages-multi": "^0.7.2",
+    "commitlint": "^19.6.0",
     "eslint": "^9.16.0",
+    "husky": "^9.1.7",
     "neostandard": "^0.11.9",
     "typescript": "^5.7.2"
   },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "dev": "cd doc && npm run dev"
+    "dev": "cd doc && npm run dev",
+    "prepare": "husky",
+    "publish:main": "cd doc && npm run build:main && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t main",
+    "publish:latest": "cd doc && npm run build:latest && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t latest"
   },
   "keywords": [
     "data-fair",
