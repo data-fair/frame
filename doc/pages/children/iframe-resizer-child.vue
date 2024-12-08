@@ -4,7 +4,7 @@
     color="primary"
   >
     <v-card-text>
-      This is a simple frame content
+      This is a frame with iframeResizer.contentWindow available.
       <div :style="`height:${height}px;`" />
       <v-btn
         color="primary"

@@ -36,6 +36,7 @@ export default class DFrameContentManager {
   private pendingCheckHeight: boolean = false
   private debug: boolean = false
   private throttledCheckHeight: () => void
+  private lastHeight = 0
 
   constructor () {
     const afCallback = () => {
@@ -107,11 +108,15 @@ export default class DFrameContentManager {
     let max = 0
     for (const element of elements) {
       const dataAttribute = element.getAttribute('data-iframe-height')
+      console.log('dataAttribute', dataAttribute)
       const bottom = element.getBoundingClientRect().bottom +
         parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom')) +
         (dataAttribute ? parseFloat(dataAttribute) : 0)
       if (bottom > max) max = bottom
     }
-    this.postMessageToParent('height', max)
+    if (max !== this.lastHeight) {
+      this.postMessageToParent('height', max)
+      this.lastHeight = max
+    }
   }
 }
