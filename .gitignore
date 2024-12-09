@@ -1,3 +1,5 @@
 node_modules
 /doc/.nuxt
 /doc/.output
+/src/*.js
+/src/*.d.ts

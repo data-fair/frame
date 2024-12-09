@@ -14,6 +14,7 @@
     "husky": "^9.1.7",
     "neostandard": "^0.11.9",
     "typescript": "^5.7.2",
+    "vite": "^6.0.3",
     "vue-router": "^4.5.0"
   },
   "scripts": {
@@ -21,6 +22,7 @@
     "lint:fix": "eslint . --fix",
     "dev": "cd doc && npm run dev",
     "prepare": "husky",
+    "build": "tsc",
     "publish:main": "cd doc && npm run build:main && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t main",
     "publish:latest": "cd doc && npm run build:latest && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t latest"
   },
