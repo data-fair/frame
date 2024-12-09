@@ -1,4 +1,4 @@
-import { type Message, isInitParentMessage } from './message-types'
+import { type Message, isInitParentMessage, isUpdateSrcMessage } from './message-types'
 
 const windowEventTypes = [
   'animationstart',
@@ -32,13 +32,17 @@ const windowEventTypes = [
   'otransitionend', 'resize'
 ]
 
-export default class DFrameContentManager {
+export type DFrameContentOptions = { updateSrc?: (src: string) => void }
+
+export default class DFrameContent {
+  private options: DFrameContentOptions
   private pendingCheckHeight: boolean = false
   private debug: boolean = false
   private throttledCheckHeight: () => void
   private lastHeight = 0
 
-  constructor () {
+  constructor (options?: DFrameContentOptions) {
+    this.options = options ?? {}
     const afCallback = () => {
       this.checkHeight()
       this.pendingCheckHeight = false
@@ -67,6 +71,13 @@ export default class DFrameContentManager {
       if (isInitParentMessage(message)) {
         this.debug = !!message.data.debug
         this.init()
+      }
+      if (isUpdateSrcMessage(message)) {
+        if (this.options.updateSrc) {
+          this.options.updateSrc(message.data.startsWith('/') ? window.location.origin + message.data : message.data)
+        } else {
+          window.location.href = message.data
+        }
       }
     }
   }
@@ -108,7 +119,6 @@ export default class DFrameContentManager {
     let max = 0
     for (const element of elements) {
       const dataAttribute = element.getAttribute('data-iframe-height')
-      console.log('dataAttribute', dataAttribute)
       const bottom = element.getBoundingClientRect().bottom +
         parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom')) +
         (dataAttribute ? parseFloat(dataAttribute) : 0)

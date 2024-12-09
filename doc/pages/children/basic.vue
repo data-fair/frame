@@ -1,11 +1,7 @@
 <template>
-  <v-card
-    variant="outlined"
-    color="primary"
-    style="height:100%;"
+  <div
+    class="text-caption"
   >
-    <v-card-text>
-      This is a simple frame with static content.
-    </v-card-text>
-  </v-card>
+    This is a simple frame with static content.
+  </div>
 </template>

@@ -4,7 +4,7 @@
     color="primary"
     data-iframe-height
   >
-    <v-card-text>
+    <v-card-text class="text-caption">
       This is a frame with a dynamic height.
       <div :style="`height:${height}px;`" />
       <v-btn

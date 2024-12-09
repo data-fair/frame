@@ -9,6 +9,7 @@ template.innerHTML = `
       display: block;
     }
     iframe.d-frame-iframe {
+      display: block;
       width: 100%;
       border: none;
       max-height: 100%;
@@ -39,6 +40,7 @@ export default class DFrameElement extends HTMLElement {
   set aspectRatio (value) { this.setAttribute('aspect-ratio', value) }
 
   /* internal state */
+  private initialSrc: string | undefined
   private iframe: HTMLIFrameElement
   private width: number | undefined
   private height: number | undefined
@@ -81,12 +83,18 @@ export default class DFrameElement extends HTMLElement {
       if (isInitChildMessage(message)) {
         // simple handshake for initialization
         this.postMessageToIframe('init', { debug: this.debug })
+        this.init()
       }
       if (isHeightMessage(message)) {
         this.resizedHeight = this.height = message.data
         this.updateStyle()
       }
     }
+  }
+
+  init () {
+    // called after initial handshake with child
+    this.initialSrc = this.src
   }
 
   postMessageToIframe (type: string, data?: any) {
@@ -96,7 +104,11 @@ export default class DFrameElement extends HTMLElement {
   }
 
   updateSrc () {
-    this.iframe.setAttribute('src', this.src)
+    if (this.initialSrc) {
+      this.postMessageToIframe('updateSrc', this.src)
+    } else {
+      this.iframe.setAttribute('src', this.src)
+    }
   }
 
   updateStyle () {

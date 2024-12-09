@@ -1,3 +1,3 @@
-import DFrameContentManager from './DFrameContentManager'
+import DFrameContent from './DFrameContent'
 
-export default new DFrameContentManager()
+export default new DFrameContent()

@@ -14,6 +14,7 @@
     <d-frame
       :src="`${$config.app.baseURL}children/basic`"
       style="height:100px;max-width:300px;"
+      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
     />
 
     <h2 class="text-h4 mt-8">
@@ -31,6 +32,7 @@
     <d-frame
       :src="`${$config.app.baseURL}children/basic`"
       style="max-width:300px;"
+      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
     />
 
     <h2 class="text-h4 mt-8">
@@ -44,6 +46,7 @@
       :src="`${$config.app.baseURL}children/basic`"
       aspect-ratio="2"
       style="max-width:300px;"
+      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
     />
   </v-container>
 </template>

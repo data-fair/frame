@@ -19,3 +19,9 @@ export type HeightMessage = { dFrame: 'child', type: 'height', data: number }
 export function isHeightMessage (message: Message): message is HeightMessage {
   return message.dFrame === 'child' && message.type === 'height'
 }
+
+export type UpdateSrcMessage = { dFrame: 'parent', type: 'updateSrc', data: string }
+
+export function isUpdateSrcMessage (message: Message): message is UpdateSrcMessage {
+  return message.dFrame === 'parent' && message.type === 'updateSrc'
+}
