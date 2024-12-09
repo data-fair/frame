@@ -1,4 +1,4 @@
-import { type Message, isInitParentMessage, isUpdateSrcMessage } from './message-types'
+import { type Message, isInitParentMessage, isUpdateSrcMessage } from './message-types.js'
 
 const windowEventTypes = [
   'animationstart',

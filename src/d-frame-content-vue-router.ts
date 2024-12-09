@@ -1,4 +1,4 @@
-import DFrameContent, { type DFrameContentOptions } from './DFrameContent'
+import DFrameContent, { type DFrameContentOptions } from './DFrameContent.js'
 import type { Router } from 'vue-router'
 
 type DFrameContentVueRouter = Omit<DFrameContentOptions, 'updateSrc'> & { router: Router }

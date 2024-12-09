@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isHeightMessage, isInitChildMessage, type Message } from './message-types'
+import { isHeightMessage, isInitChildMessage, type Message } from './message-types.js'
 
 const template = document.createElement('template')
 template.innerHTML = `

@@ -1,6 +1,6 @@
-'use strict'
+import neostandard from 'neostandard'
 
-module.exports = require('neostandard')({
-  ignores: ['node_modules/', 'doc/', 'src/*.js', 'src/*.d.ts'],
+export default neostandard({
+  ignores: ['node_modules/', 'doc/', 'src/*.js', 'src/*.d.ts', 'dist/'],
   ts: true
 })
