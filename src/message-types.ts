@@ -8,7 +8,7 @@ export function isInitChildMessage (message: Message): message is InitChildMessa
 }
 
 // sent as response by the parent as second part of initialization handshake
-export type InitParentMessage = { dFrame: 'parent', type: 'init', data: { debug?: boolean } }
+export type InitParentMessage = { dFrame: 'parent', type: 'init', data: { debug?: boolean, resize: 'yes' | 'no' | 'auto', syncParams: boolean } }
 
 export function isInitParentMessage (message: Message): message is InitParentMessage {
   return message.dFrame === 'parent' && message.type === 'init'
@@ -24,4 +24,9 @@ export type UpdateSrcMessage = { dFrame: 'parent', type: 'updateSrc', data: stri
 
 export function isUpdateSrcMessage (message: Message): message is UpdateSrcMessage {
   return message.dFrame === 'parent' && message.type === 'updateSrc'
+}
+
+export type StateChangeMessage = { dFrame: 'child', type: 'stateChange', data: { action: 'replace' | 'push', href: string } }
+export function isStateChangeMessage (message: Message): message is StateChangeMessage {
+  return message.dFrame === 'child' && message.type === 'stateChange'
 }

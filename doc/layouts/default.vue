@@ -58,6 +58,11 @@
             Dynamic src
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/nav-sync">
+          <v-list-item-title>
+            Navigation syncing
+          </v-list-item-title>
+        </v-list-item>
       </v-list>
 
       <template #append>

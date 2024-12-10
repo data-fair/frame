@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isHeightMessage, isInitChildMessage, type Message } from './message-types.js'
+import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type Message } from './message-types.js'
 
 const template = document.createElement('template')
 template.innerHTML = `<style>
@@ -51,6 +51,12 @@ export default class DFrameElement extends HTMLElement {
     return value as 'no' | 'yes' | 'auto'
   }
 
+  get syncParams () { return this.getAttribute('sync-params') }
+  set syncParams (value) {
+    if (value !== null) this.setAttribute('sync-params', value)
+    else this.removeAttribute('sync-params')
+  }
+
   /* internal state */
   private initialSrc: string | undefined
   private iframeElement: HTMLIFrameElement
@@ -97,12 +103,27 @@ export default class DFrameElement extends HTMLElement {
       this.log('debug', 'received message from child', message)
       if (isInitChildMessage(message)) {
         // simple handshake for initialization
-        this.postMessageToIframe('init', { debug: this.debug })
+        this.postMessageToIframe('init', {
+          debug: this.debug,
+          resize: this.resize,
+          syncParams: this.syncParams !== null
+        })
         this.init()
       }
       if (isHeightMessage(message)) {
         this.resizedHeight = message.data
         this.updateStyle()
+      }
+      if (isStateChangeMessage(message)) {
+        const childUrl = new URL(message.data.href)
+        const url = new URL(window.location.href)
+        url.search = childUrl.search
+        if (message.data.action === 'replace') {
+          window.history.replaceState(null, '', url.href)
+        }
+        if (message.data.action === 'push') {
+          window.history.pushState(null, '', url.href)
+        }
       }
     }
   }
@@ -119,10 +140,16 @@ export default class DFrameElement extends HTMLElement {
   }
 
   updateSrc () {
+    let fullSrc = this.src
+    if (this.syncParams !== null) {
+      const srcUrl = new URL(this.src.startsWith('/') ? window.location.origin + this.src : this.src)
+      srcUrl.search = window.location.search
+      fullSrc = srcUrl.href
+    }
     if (this.initialSrc) {
-      this.postMessageToIframe('updateSrc', this.src)
+      this.postMessageToIframe('updateSrc', fullSrc)
     } else {
-      this.iframeElement.setAttribute('src', this.src)
+      this.iframeElement.setAttribute('src', fullSrc)
     }
   }
 

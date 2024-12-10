@@ -70,7 +70,8 @@ export default class DFrameContent {
       const message = e.data as Message
       if (isInitParentMessage(message)) {
         this.debug = !!message.data.debug
-        this.init()
+        if (message.data.resize !== 'no') this.initResize()
+        if (message.data.syncParams) this.initSyncParams()
       }
       if (isUpdateSrcMessage(message)) {
         if (this.options.updateSrc) {
@@ -87,11 +88,32 @@ export default class DFrameContent {
     window.parent.postMessage(message)
   }
 
-  init () {
-    this.log('debug', 'init')
+  initResize () {
+    this.log('debug', 'initResize')
     this.checkHeight()
     this.createMutationObserver()
     this.createWindowEventListeners()
+  }
+
+  initSyncParams () {
+    this.log('debug', 'initSyncParams')
+    // monkey patch pushState and replaceState to send all state change info to the parent window
+    // this is to compensate the lack of event emission by window.history
+    const oldReplaceState = window.history.replaceState
+    const newPushState: typeof window.history.pushState = (...args) => {
+      // do a replace instead of a push, the push will be done in the parent window if sync-state is activated
+      const ret = oldReplaceState.apply(window.history, args)
+      this.postMessageToParent('stateChange', { action: 'push', href: window.location.href })
+      return ret
+    }
+    window.history.pushState = newPushState
+
+    const newReplaceState: typeof window.history.replaceState = (...args) => {
+      const ret = oldReplaceState.apply(window.history, args)
+      this.postMessageToParent('stateChange', { action: 'replace', href: window.location.href })
+      return ret
+    }
+    window.history.replaceState = newReplaceState
   }
 
   createMutationObserver () {
