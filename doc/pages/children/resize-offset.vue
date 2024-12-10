@@ -10,7 +10,7 @@
         color="primary"
         variant="elevated"
         class="mt-4"
-        data-iframe-height="17"
+        data-iframe-height="30"
         @click="height += 50"
       >
         Add 50px

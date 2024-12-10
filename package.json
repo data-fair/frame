@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "dev": "cd doc && npm run dev",
+    "dev-zellij": "zellij --layout .zellij.kdl",
     "prepare": "husky",
     "build": "rm -f src/*.d.ts && rm -f src/*.js && tsc -p tsconfig.json && rm -rf dist && vite -c vite.config.d-frame.js build && vite -c vite.config.d-frame-content.js build",
     "prepublishOnly": "npm run build",

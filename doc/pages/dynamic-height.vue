@@ -33,7 +33,7 @@
       Adding an offset on a tagged element
     </h2>
     <p class="my-4">
-      In this example the button at the bottom of the frame has a <code>data-iframe-height="17"</code> attribute.
+      In this example the button at the bottom of the frame has a <code>data-iframe-height="30"</code> attribute.
     </p>
     <d-frame
       :src="`${$config.app.baseURL}children/resize-offset`"

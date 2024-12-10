@@ -33,6 +33,7 @@
     <d-frame
       :src="`${$config.app.baseURL}children/src-vue-router?param=${param}`"
       style="max-width:300px;"
+      resize
       class="border-dashed border-md border-secondary border-opacity-100 pa-2"
     />
   </v-container>

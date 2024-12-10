@@ -42,9 +42,22 @@
       The default aspect ratio can be overwritten with an attribute. The following example has <code>aspect-ratio="2"</code>.
     </p>
     <d-frame
-      debug
       :src="`${$config.app.baseURL}children/basic`"
       aspect-ratio="2"
+      style="max-width:300px;"
+      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+    />
+
+    <h2 class="text-h4 mt-8">
+      Explicit height
+    </h2>
+    <p class="my-4">
+      The height can be overwritten with an attribute. The following has <code>height="50vh"</code>.
+    </p>
+    <d-frame
+      debug
+      :src="`${$config.app.baseURL}children/basic`"
+      height="50vh"
       style="max-width:300px;"
       class="border-dashed border-md border-secondary border-opacity-100 pa-2"
     />

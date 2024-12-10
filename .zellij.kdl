@@ -1,0 +1,32 @@
+layout {
+    pane {
+      split_direction "vertical"
+      pane name="d-frame" borderless=true {
+        command "bash"
+        args "-ic" "nvm use > /dev/null 2>&1 && bash"
+      }
+      pane name="doc dev server" {
+        command "bash"
+        args "-ic" "nvm use > /dev/null 2>&1 && cd doc && npm run dev"
+      }
+    }
+    pane {
+      split_direction "vertical"
+      pane name="build ts" {
+        command "bash"
+        args "-ic" "nvm use > /dev/null 2>&1 && tsc -p tsconfig.json --watch"
+      }
+      pane name="build d-frame" {
+        command "bash"
+        args "-ic" "nvm use > /dev/null 2>&1 && vite -c vite.config.d-frame.js build --watch"
+      }
+      pane name="build d-frame-content" {
+        command "bash"
+        args "-ic" "nvm use > /dev/null 2>&1 && vite -c vite.config.d-frame-content.js build --watch"
+      }
+    }
+    pane size=1 borderless=true {
+        command "bash"
+        args "-ic" "echo -n -e \"Dev server available at \\e[1;96mhttp://localhost:3000\\033[0m\""
+    }
+}

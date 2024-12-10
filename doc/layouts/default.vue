@@ -48,6 +48,11 @@
             Dynamic height
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/clipping">
+          <v-list-item-title>
+            Clipping effect
+          </v-list-item-title>
+        </v-list-item>
         <v-list-item to="/dynamic-src">
           <v-list-item-title>
             Dynamic src
