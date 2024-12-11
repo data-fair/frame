@@ -1,6 +1,7 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
 import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type Message } from './message-types.js'
+import { parseSyncParams, getChildSrc, getParentHref, type ParsedSyncParams } from './sync-params.js'
 
 const template = document.createElement('template')
 template.innerHTML = `<style>
@@ -16,9 +17,6 @@ template.innerHTML = `<style>
 </style><slot name="loader"></slot><iframe class="d-frame-iframe" frameborder="0">`
 
 export default class DFrameElement extends HTMLElement {
-  /* reflected attributes */
-  static get observedAttributes () { return ['src', 'aspect-ratio', 'height'] }
-
   get debug () { return this.hasAttribute('debug') }
   set debug (value) {
     if (value) this.setAttribute('debug', '')
@@ -59,6 +57,8 @@ export default class DFrameElement extends HTMLElement {
 
   /* internal state */
   private initialSrc: string | undefined
+  private srcUrl: URL | undefined
+  private parsedSyncParams: ParsedSyncParams | undefined
   private iframeElement: HTMLIFrameElement
   private slotElement: HTMLSlotElement
   private width: number | undefined
@@ -114,15 +114,13 @@ export default class DFrameElement extends HTMLElement {
         this.resizedHeight = message.data
         this.updateStyle()
       }
-      if (isStateChangeMessage(message)) {
-        const childUrl = new URL(message.data.href)
-        const url = new URL(window.location.href)
-        url.search = childUrl.search
+      if (isStateChangeMessage(message) && this.parsedSyncParams) {
+        const newParentHref = getParentHref(this.srcUrl, this.parsedSyncParams, message.data.href, window.location.href)
         if (message.data.action === 'replace') {
-          window.history.replaceState(null, '', url.href)
+          window.history.replaceState(null, '', newParentHref)
         }
         if (message.data.action === 'push') {
-          window.history.pushState(null, '', url.href)
+          window.history.pushState(null, '', newParentHref)
         }
       }
     }
@@ -140,12 +138,9 @@ export default class DFrameElement extends HTMLElement {
   }
 
   updateSrc () {
-    let fullSrc = this.src
-    if (this.syncParams !== null) {
-      const srcUrl = new URL(this.src.startsWith('/') ? window.location.origin + this.src : this.src)
-      srcUrl.search = window.location.search
-      fullSrc = srcUrl.href
-    }
+    this.srcUrl = new URL(this.src.startsWith('/') ? (window.location.origin + this.src) : this.src)
+    const fullSrc = getChildSrc(this.srcUrl, this.parsedSyncParams, window.location.href)
+    console.log('FULL SRC ?', fullSrc, this.parsedSyncParams, window.location.href)
     if (this.initialSrc) {
       this.postMessageToIframe('updateSrc', fullSrc)
     } else {
@@ -202,14 +197,18 @@ export default class DFrameElement extends HTMLElement {
   connectedCallback () {
     if (!this.hasAttribute('src')) throw new Error('src is a required attribute')
     this.log('debug', 'connected')
+    if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
     this.updateSrc()
     this.updateStyle()
   }
 
+  /* reflected attributes */
+  static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params'] }
   attributeChangedCallback (name: string, oldValue: any, newValue: any) {
     this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'aspect-ratio') this.updateAspectRatioHeight()
     if (name === 'src') this.updateSrc()
     if (name === 'height') this.updateStyle()
+    if (name === 'sync-params') this.updateSrc()
   }
 }

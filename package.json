@@ -22,6 +22,7 @@
     "lint:fix": "eslint . --fix",
     "dev-zellij": "zellij --layout .zellij.kdl",
     "prepare": "husky",
+    "test": "node --test tests/*.js",
     "build": "rm -f src/*.d.ts && rm -f src/*.js && tsc -p tsconfig.json && rm -rf dist && vite -c vite.config.d-frame.js build && vite -c vite.config.d-frame-content.js build",
     "prepublishOnly": "npm run build",
     "publish:main": "cd doc && npm run build:main && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t main",

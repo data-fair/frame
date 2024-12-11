@@ -12,6 +12,14 @@
     >
       Increment
     </v-btn>
+    <v-btn
+      color="primary"
+      variant="elevated"
+      class="ml-2"
+      @click="param = 0"
+    >
+      Clear
+    </v-btn>
   </div>
 </template>
 
@@ -25,7 +33,7 @@ const param = computed({
     return Number(route.query.param ?? 0)
   },
   set(value: number) {
-    router.replace({ query: { ...route.query, param: value } })
+    router.replace({ query: { ...route.query, param: value || undefined } })
   },
 })
 </script>
