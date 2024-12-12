@@ -1,0 +1,1 @@
+import{_ as e,t as r,C as o,A as t,z as s,ar as n}from"./eZxajtxU.js";import{V as c,a as l}from"./DTMgL1Xt.js";import"./DnAZLMfL.js";import"./C5RfGiQ_.js";import"./DofnMt5v.js";const _={};function f(a,i){return r(),o(l,null,{default:t(()=>[s(c,null,{default:t(()=>[n(a.$slots,"default")]),_:3})]),_:3})}const x=e(_,[["render",f]]);export{x as default};
