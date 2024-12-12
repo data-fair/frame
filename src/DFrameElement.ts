@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type Message } from './message-types.js'
+import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentHref, type ParsedSyncParams } from './sync-params.js'
 
 const template = document.createElement('template')
@@ -98,28 +98,28 @@ export default class DFrameElement extends HTMLElement {
   }
 
   onMessage (e: MessageEvent) {
-    if (e.source === this.iframeElement?.contentWindow && typeof e.data === 'object' && e.data.dFrame === 'child') {
-      const message = e.data as Message
+    if (e.source === this.iframeElement?.contentWindow && Array.isArray(e.data)) {
+      const message = e.data
       this.log('debug', 'received message from child', message)
       if (isInitChildMessage(message)) {
         // simple handshake for initialization
-        this.postMessageToIframe('init', {
+        this.postMessageToChild(['df-parent', 'init', {
           debug: this.debug,
           resize: this.resize,
           syncParams: this.syncParams !== null
-        })
+        }])
         this.init()
       }
       if (isHeightMessage(message)) {
-        this.resizedHeight = message.data
+        this.resizedHeight = message[2]
         this.updateStyle()
       }
       if (isStateChangeMessage(message) && this.parsedSyncParams) {
-        const newParentHref = getParentHref(this.srcUrl, this.parsedSyncParams, message.data.href, window.location.href)
-        if (message.data.action === 'replace') {
+        const newParentHref = getParentHref(this.srcUrl, this.parsedSyncParams, message[3], window.location.href)
+        if (message[2] === 'replace') {
           window.history.replaceState(null, '', newParentHref)
         }
-        if (message.data.action === 'push') {
+        if (message[2] === 'push') {
           window.history.pushState(null, '', newParentHref)
         }
       }
@@ -131,8 +131,7 @@ export default class DFrameElement extends HTMLElement {
     this.initialSrc = this.src
   }
 
-  postMessageToIframe (type: string, data?: any) {
-    const message: Message = { dFrame: 'parent', type, data }
+  postMessageToChild (message: ParentMessage) {
     this.log('debug', 'send message to child', message)
     this.iframeElement?.contentWindow?.postMessage(message)
   }
@@ -140,9 +139,8 @@ export default class DFrameElement extends HTMLElement {
   updateSrc () {
     this.srcUrl = new URL(this.src.startsWith('/') ? (window.location.origin + this.src) : this.src)
     const fullSrc = getChildSrc(this.srcUrl, this.parsedSyncParams, window.location.href)
-    console.log('FULL SRC ?', fullSrc, this.parsedSyncParams, window.location.href)
     if (this.initialSrc) {
-      this.postMessageToIframe('updateSrc', fullSrc)
+      this.postMessageToChild(['df-parent', 'updateSrc', fullSrc])
     } else {
       this.iframeElement.setAttribute('src', fullSrc)
     }

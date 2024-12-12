@@ -1,4 +1,4 @@
-import { type Message, isInitParentMessage, isUpdateSrcMessage } from './message-types.js'
+import { isInitParentMessage, isUpdateSrcMessage, ChildMessage } from './messages.js'
 
 const windowEventTypes = [
   'animationstart',
@@ -56,7 +56,7 @@ export default class DFrameContent {
     if (typeof window === 'undefined') return
     window.addEventListener('message', (e) => this.onMessage(e))
     // simple handshake for initialization
-    this.postMessageToParent('init')
+    this.postMessageToParent(['df-child', 'init'])
   }
 
   log (level: 'debug' | 'info', ...args: any[]) {
@@ -66,25 +66,24 @@ export default class DFrameContent {
   }
 
   onMessage (e: MessageEvent) {
-    if (e.source === window.parent && typeof e.data === 'object' && e.data.dFrame === 'parent') {
-      const message = e.data as Message
+    if (e.source === window.parent && Array.isArray(e.data)) {
+      const message = e.data
       if (isInitParentMessage(message)) {
-        this.debug = !!message.data.debug
-        if (message.data.resize !== 'no') this.initResize()
-        if (message.data.syncParams) this.initSyncParams()
+        this.debug = !!message[2].debug
+        if (message[2].resize !== 'no') this.initResize()
+        if (message[2].syncParams) this.initSyncParams()
       }
       if (isUpdateSrcMessage(message)) {
         if (this.options.updateSrc) {
-          this.options.updateSrc(message.data.startsWith('/') ? window.location.origin + message.data : message.data)
+          this.options.updateSrc(message[2].startsWith('/') ? window.location.origin + message[2] : message[2])
         } else {
-          window.location.href = message.data
+          window.location.href = message[2]
         }
       }
     }
   }
 
-  postMessageToParent (type: string, data?: any) {
-    const message: Message = { dFrame: 'child', type, data }
+  postMessageToParent (message: ChildMessage) {
     window.parent.postMessage(message)
   }
 
@@ -103,14 +102,14 @@ export default class DFrameContent {
     const newPushState: typeof window.history.pushState = (...args) => {
       // do a replace instead of a push, the push will be done in the parent window if sync-state is activated
       const ret = oldReplaceState.apply(window.history, args)
-      this.postMessageToParent('stateChange', { action: 'push', href: window.location.href })
+      this.postMessageToParent(['df-child', 'stateChange', 'push', window.location.href])
       return ret
     }
     window.history.pushState = newPushState
 
     const newReplaceState: typeof window.history.replaceState = (...args) => {
       const ret = oldReplaceState.apply(window.history, args)
-      this.postMessageToParent('stateChange', { action: 'replace', href: window.location.href })
+      this.postMessageToParent(['df-child', 'stateChange', 'replace', window.location.href])
       return ret
     }
     window.history.replaceState = newReplaceState
@@ -147,7 +146,7 @@ export default class DFrameContent {
       if (bottom > max) max = bottom
     }
     if (max !== this.lastHeight) {
-      this.postMessageToParent('height', max)
+      this.postMessageToParent(['df-child', 'height', max])
       this.lastHeight = max
     }
   }
