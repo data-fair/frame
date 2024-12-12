@@ -4,8 +4,8 @@ An iframe wrapper for powerful web app integrations.
 Lightweight, vanilla JS, no dependency.
 
 Supports:
+  - dynamic resizing
   - navigation syncing
-  - aspect ratio management
-  - dynamic resize
+  - notification passing
 
 See [the documentation](https://data-fair.github.io/frame/latest/).

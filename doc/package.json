@@ -20,9 +20,12 @@
     "d-frame": "../src/d-frame.ts",
     "iframe-resizer": "^4.4.5",
     "nuxt": "^3.14.1592",
+    "prism-themes": "^1.9.0",
+    "prismjs": "^1.29.0",
     "sass-embedded": "^1.82.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vue": "latest",
+    "vue-prism-editor": "^2.0.0-alpha.2",
     "vue-router": "latest"
   }
 }
