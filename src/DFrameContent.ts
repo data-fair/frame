@@ -71,7 +71,7 @@ export default class DFrameContent {
       if (isInitParentMessage(message)) {
         this.debug = !!message[2].debug
         if (message[2].resize !== 'no') this.initResize()
-        if (message[2].syncParams) this.initSyncParams()
+        if (message[2].syncParams || message[2].syncPath) this.initSyncParams()
       }
       if (isUpdateSrcMessage(message)) {
         if (this.options.updateSrc) {

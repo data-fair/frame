@@ -16,9 +16,6 @@
       It is possible to handle complex cases of parameters syncing, accross parent and children.
     </p>
 
-    <h2 class="text-h4 mt-8">
-      Sharing query parameters
-    </h2>
     <p class="my-4">
       This examples reflects the query parameter param1 accross children, while param2 is kept segregated with a prefix. It uses <code>sync-params="param1,param2:child1_"</code> and <code>sync-params="param1,param2:child2_"</code> attributes.
     </p>

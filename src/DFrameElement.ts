@@ -1,7 +1,7 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
 import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
-import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './sync-params.js'
+import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
 
 export interface StateChangeAdapter {
   stateChange (action: 'push' | 'replace', newUrl: URL): void,
@@ -67,9 +67,21 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('sync-params')
   }
 
+  get syncPath () {
+    const value = this.getAttribute('sync-path')
+    if (value === null) return null
+    return value || 'p'
+  }
+
+  set syncPath (value) {
+    if (value !== null) this.setAttribute('sync-params', value)
+    else this.removeAttribute('sync-params')
+  }
+
   public adapter: StateChangeAdapter
 
   /* internal state */
+  private connected: boolean = false
   private initialSrc: string | undefined
   private srcUrl: URL | undefined
   private parsedSyncParams: ParsedSyncParams | undefined
@@ -122,7 +134,8 @@ export default class DFrameElement extends HTMLElement {
         this.postMessageToChild(['df-parent', 'init', {
           debug: this.debug,
           resize: this.resize,
-          syncParams: this.syncParams !== null
+          syncParams: this.syncParams !== null,
+          syncPath: this.syncPath !== null
         }])
         this.init()
       }
@@ -130,8 +143,8 @@ export default class DFrameElement extends HTMLElement {
         this.resizedHeight = message[2]
         this.updateStyle()
       }
-      if (isStateChangeMessage(message) && this.parsedSyncParams) {
-        const newParentHUrl = getParentUrl(this.srcUrl, this.parsedSyncParams, message[3], window.location.href)
+      if (isStateChangeMessage(message) && (this.parsedSyncParams || this.syncPath)) {
+        const newParentHUrl = getParentUrl(this.srcUrl, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
         if (newParentHUrl.href !== window.location.href) {
           this.adapter.stateChange(message[2], newParentHUrl)
         }
@@ -150,8 +163,9 @@ export default class DFrameElement extends HTMLElement {
   }
 
   updateSrc () {
+    if (!this.connected) return
     this.srcUrl = new URL(this.src.startsWith('/') ? (window.location.origin + this.src) : this.src)
-    const fullSrc = getChildSrc(this.srcUrl, this.parsedSyncParams, window.location.href)
+    const fullSrc = getChildSrc(this.srcUrl, window.location.href, this.parsedSyncParams, this.syncPath)
     if (this.initialSrc) {
       this.postMessageToChild(['df-parent', 'updateSrc', fullSrc])
     } else {
@@ -208,21 +222,23 @@ export default class DFrameElement extends HTMLElement {
   connectedCallback () {
     if (!this.hasAttribute('src')) throw new Error('src is a required attribute')
     this.log('debug', 'connected')
+    this.connected = true
     if (this.adapter.onStateChange) {
       this.adapter.onStateChange(() => { this.updateSrc() })
     }
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
-    this.updateSrc()
     this.updateStyle()
+    this.updateSrc()
   }
 
   /* reflected attributes */
-  static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params'] }
+  static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params', 'sync-path'] }
   attributeChangedCallback (name: string, oldValue: any, newValue: any) {
     this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'aspect-ratio') this.updateAspectRatioHeight()
     if (name === 'src') this.updateSrc()
     if (name === 'height') this.updateStyle()
     if (name === 'sync-params') this.updateSrc()
+    if (name === 'sync-path') this.updateSrc()
   }
 }

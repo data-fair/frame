@@ -15,7 +15,7 @@ export function isStateChangeMessage (message: any[]): message is StateChangeMes
 }
 
 // sent as response by the parent as second part of initialization handshake
-export type InitParentMessage = ['df-parent', 'init', { debug?: boolean, resize: 'yes' | 'no' | 'auto', syncParams: boolean }]
+export type InitParentMessage = ['df-parent', 'init', { debug?: boolean, resize: 'yes' | 'no' | 'auto', syncParams: boolean, syncPath: boolean }]
 export type UpdateSrcMessage = ['df-parent', 'updateSrc', string]
 export type ParentMessage = InitParentMessage | UpdateSrcMessage
 
