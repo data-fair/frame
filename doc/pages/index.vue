@@ -9,9 +9,12 @@
       class="mt-16"
     >
       <span
-        class="px-8 text-h2 text-white font-weight-bold bg-secondary rounded-shaped"
-        style="width:fit-content"
-      >d-frame</span>
+        class="pl-8 pr-16 text-h2 text-secondary font-weight-bold border-dashed border-lg border-secondary border-opacity-100"
+        style="width:fit-content;position:relative"
+      >d-frame<v-icon
+        style="position: absolute;right:0;bottom:0;"
+        :icon="mdiResizeBottomRight"
+      /></span>
     </div>
 
     <p class="my-4 text-subtitle font-italic ">
@@ -63,6 +66,7 @@
 
 <script setup>
 import { VContainer } from 'vuetify/components'
+import { mdiResizeBottomRight } from '@mdi/js'
 
 useHead({
   title: 'd-frame',
