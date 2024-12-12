@@ -9,7 +9,7 @@
       color="primary"
       variant="elevated"
       class="ml-2"
-      to="./child"
+      to="/children/nav-sync-path/child"
     >
       Go to child
     </v-btn>
