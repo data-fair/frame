@@ -63,6 +63,11 @@
             Navigation syncing
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/dynamic-nav-sync">
+          <v-list-item-title>
+            Dynamic navigation syncing
+          </v-list-item-title>
+        </v-list-item>
       </v-list>
 
       <template #append>

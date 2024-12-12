@@ -34,7 +34,7 @@ export function getChildSrc (srcUrl: URL, syncParams: ParsedSyncParams | undefin
   return srcUrl.href
 }
 
-export function getParentHref (srcUrl: URL | undefined, syncParams: ParsedSyncParams, childHref: string, currentParentHref: string) {
+export function getParentUrl (srcUrl: URL | undefined, syncParams: ParsedSyncParams, childHref: string, currentParentHref: string) {
   const parentUrl = new URL(currentParentHref)
   const childUrl = new URL(childHref)
 
@@ -60,5 +60,5 @@ export function getParentHref (srcUrl: URL | undefined, syncParams: ParsedSyncPa
     }
   })
 
-  return parentUrl.href
+  return parentUrl
 }

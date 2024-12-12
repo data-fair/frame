@@ -1,7 +1,19 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
 import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
-import { parseSyncParams, getChildSrc, getParentHref, type ParsedSyncParams } from './sync-params.js'
+import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './sync-params.js'
+
+export interface StateChangeAdapter {
+  stateChange (action: 'push' | 'replace', newUrl: URL): void,
+  onStateChange? (callback: () => void): void
+}
+
+class WindowStateChangeAdapter implements StateChangeAdapter {
+  stateChange (action: 'push' | 'replace', newUrl: URL): void {
+    if (action === 'replace') window.history.replaceState(null, '', newUrl)
+    if (action === 'push') window.history.pushState(null, '', newUrl)
+  }
+}
 
 const template = document.createElement('template')
 template.innerHTML = `<style>
@@ -55,6 +67,8 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('sync-params')
   }
 
+  public adapter: StateChangeAdapter
+
   /* internal state */
   private initialSrc: string | undefined
   private srcUrl: URL | undefined
@@ -94,6 +108,8 @@ export default class DFrameElement extends HTMLElement {
     // TODO: should we use unobserve or disconnect on cleanup ?
     resizeObserver.observe(this)
 
+    this.adapter = new WindowStateChangeAdapter()
+
     window.addEventListener('message', (e) => this.onMessage(e))
   }
 
@@ -115,12 +131,9 @@ export default class DFrameElement extends HTMLElement {
         this.updateStyle()
       }
       if (isStateChangeMessage(message) && this.parsedSyncParams) {
-        const newParentHref = getParentHref(this.srcUrl, this.parsedSyncParams, message[3], window.location.href)
-        if (message[2] === 'replace') {
-          window.history.replaceState(null, '', newParentHref)
-        }
-        if (message[2] === 'push') {
-          window.history.pushState(null, '', newParentHref)
+        const newParentHUrl = getParentUrl(this.srcUrl, this.parsedSyncParams, message[3], window.location.href)
+        if (newParentHUrl.href !== window.location.href) {
+          this.adapter.stateChange(message[2], newParentHUrl)
         }
       }
     }
@@ -195,6 +208,9 @@ export default class DFrameElement extends HTMLElement {
   connectedCallback () {
     if (!this.hasAttribute('src')) throw new Error('src is a required attribute')
     this.log('debug', 'connected')
+    if (this.adapter.onStateChange) {
+      this.adapter.onStateChange(() => { this.updateSrc() })
+    }
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
     this.updateSrc()
     this.updateStyle()

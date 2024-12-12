@@ -8,8 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import dFrameContentVueRouter from '../../../src/d-frame-content-vue-router'
+import dFrameContentVueRouter from '../../../src/vue-router/d-frame-content'
 
-const router = useRouter()
-dFrameContentVueRouter({ router })
+dFrameContentVueRouter(useRouter())
 </script>

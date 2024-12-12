@@ -12,7 +12,7 @@
       Setting the resize attribute
     </h2>
     <p class="my-4">
-      The <code>resize</code> can be defined as "yes", "no" or "auto". The default value is "auto" and setting the attribute without a value es equivalent to "yes".
+      The <code>resize</code> can be defined as "yes", "no" or "auto". The default value is "auto" and setting the attribute without a value is equivalent to "yes".
       If the parent has prior knowledge the the child support dynamic resizing, it is better to set the <code>resize</code> attribute so that the default aspect ratio is not applied.
     </p>
     <d-frame
