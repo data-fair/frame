@@ -24,7 +24,7 @@
     "prepare": "husky",
     "test": "node --test tests/*.js",
     "build": "rm -f src/*.d.ts && rm -f src/*.js && tsc -p tsconfig.json && rm -rf dist && vite -c vite.config.d-frame.js build && vite -c vite.config.d-frame-content.js build",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run lint && npm run test && npm run build",
     "publish:main": "cd doc && npm run build:main && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t main",
     "publish:latest": "cd doc && npm run build:latest && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t latest"
   },
