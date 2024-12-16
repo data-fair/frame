@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isHeightMessage, isInitChildMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
+import { isCustomMessage, isHeightMessage, isInitChildMessage, isNotifMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
 
 export interface StateChangeAdapter {
@@ -148,6 +148,12 @@ export default class DFrameElement extends HTMLElement {
         if (newParentHUrl.href !== window.location.href) {
           this.adapter.stateChange(message[2], newParentHUrl)
         }
+      }
+      if (isCustomMessage(message)) {
+        this.dispatchEvent(new CustomEvent('message', { detail: message[2] }))
+      }
+      if (isNotifMessage(message)) {
+        this.dispatchEvent(new CustomEvent('notif', { detail: message[2] }))
       }
     }
   }

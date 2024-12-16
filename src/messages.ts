@@ -2,16 +2,30 @@
 export type InitChildMessage = ['df-child', 'init']
 export type HeightMessage = ['df-child', 'height', number]
 export type StateChangeMessage = ['df-child', 'stateChange', 'replace' | 'push', string ]
-export type ChildMessage = InitChildMessage | HeightMessage | StateChangeMessage
+export type CustomMessage = ['df-child', 'custom', any ]
+export type NotifMessage = ['df-child', 'notif', Notif]
+export type ChildMessage = InitChildMessage | HeightMessage | StateChangeMessage | CustomMessage | NotifMessage
 
-export function isInitChildMessage (message: any[]): message is InitChildMessage {
+export type Notif = {
+  type: 'default' | 'info' | 'success' | 'warning' | 'error',
+  title: string,
+  detail?: string
+}
+
+export function isInitChildMessage (message: any): message is InitChildMessage {
   return message[0] === 'df-child' && message[1] === 'init'
 }
-export function isHeightMessage (message: any[]): message is HeightMessage {
+export function isHeightMessage (message: any): message is HeightMessage {
   return message[0] === 'df-child' && message[1] === 'height'
 }
-export function isStateChangeMessage (message: any[]): message is StateChangeMessage {
+export function isStateChangeMessage (message: any): message is StateChangeMessage {
   return message[0] === 'df-child' && message[1] === 'stateChange'
+}
+export function isCustomMessage (message: any): message is CustomMessage {
+  return message[0] === 'df-child' && message[1] === 'custom'
+}
+export function isNotifMessage (message: any): message is NotifMessage {
+  return message[0] === 'df-child' && message[1] === 'notif'
 }
 
 // sent as response by the parent as second part of initialization handshake

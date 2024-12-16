@@ -73,6 +73,11 @@
             Dynamic navigation syncing
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/messages">
+          <v-list-item-title>
+            Messages
+          </v-list-item-title>
+        </v-list-item>
       </v-list>
 
       <template #append>
