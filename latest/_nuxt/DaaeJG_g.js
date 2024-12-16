@@ -1,0 +1,1 @@
+import{_ as t,v as e,t as c}from"./Ch5M9qKH.js";const s={},a={class:"text-caption"};function n(o,i){return c(),e("div",a," This is a simple frame with static content. ")}const _=t(s,[["render",n]]);export{_ as default};
