@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import dFrameContentVueRouter from '../../../../src/vue-router/d-frame-content'
+import dFrameContentVueRouter from '../../../../lib/vue-router/d-frame-content'
 
 dFrameContentVueRouter(useRouter())
 </script>

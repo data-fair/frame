@@ -34,5 +34,5 @@
 </template>
 
 <script setup lang="ts">
-import '../../src/d-frame'
+import '../../lib/d-frame'
 </script>

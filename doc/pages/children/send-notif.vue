@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import dFrameContentVueRouter from '../../../src/vue-router/d-frame-content'
+import dFrameContentVueRouter from '../../../lib/vue-router/d-frame-content'
 
 const inc = ref(0)
 const dFrameContent = dFrameContentVueRouter(useRouter())

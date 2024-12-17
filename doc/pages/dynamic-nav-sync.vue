@@ -45,8 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import '../../src/d-frame'
-import createStateChangeAdapter from '../../src/vue-router/state-change-adapter'
+import '../../lib/d-frame'
+import createStateChangeAdapter from '../../lib/vue-router/state-change-adapter'
 
 const stateChangeAdapter = createStateChangeAdapter(useRouter())
 </script>

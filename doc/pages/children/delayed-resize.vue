@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../../src/d-frame-content'
+import '../../../lib/d-frame-content'
 
 const showButton = ref(false)
 const delayRendering = () => {

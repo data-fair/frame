@@ -17,7 +17,7 @@
     "@mdi/js": "^7.4.47",
     "@nuxt/eslint": "^0.7.2",
     "@nuxtjs/google-fonts": "^3.2.0",
-    "d-frame": "../src/d-frame.ts",
+    "d-frame": "../lib/d-frame.ts",
     "iframe-resizer": "^4.4.5",
     "nuxt": "^3.14.1592",
     "prism-themes": "^1.9.0",

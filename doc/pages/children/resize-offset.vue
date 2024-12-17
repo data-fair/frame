@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../../src/d-frame-content'
+import '../../../lib/d-frame-content'
 
 const height = ref(0)
 </script>

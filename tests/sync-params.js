@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import { strict as assert } from 'assert'
-import { getChildSrc, getParentUrl, parseSyncParams } from '../src/utils/sync-params.js'
+import { getChildSrc, getParentUrl, parseSyncParams } from '../lib/utils/sync-params.js'
 
 const getChildSrcShort = (src, parentSearch, syncParams, syncPath) => {
   const parentUrl = new URL('http://te.st')

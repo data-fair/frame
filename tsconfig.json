@@ -7,5 +7,5 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["src", "tests/sync-params.test.js"]
+  "include": ["lib", "tests/sync-params.test.js"]
 }

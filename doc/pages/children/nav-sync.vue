@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../../src/d-frame-content'
+import '../../../lib/d-frame-content'
 
 const router = useRouter()
 const route = useRoute()

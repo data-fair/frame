@@ -18,7 +18,7 @@ npm install @data-fair/frame</pre>
     <code-block language="markup">
       <pre>
 &lt;script&gt;
-  import '@data-fair/frame/src/d-frame.js'
+  import '@data-fair/frame/lib/d-frame.js'
 &lt;/script&gt;
 &lt;template&gt;
   &lt;d-frame src="..." /&gt;
@@ -31,7 +31,7 @@ npm install @data-fair/frame</pre>
     <code-block language="markup">
       <pre>
 &lt;script&gt;
-  import '@data-fair/frame/src/d-frame-content.js'
+  import '@data-fair/frame/lib/d-frame-content.js'
 &lt;/script&gt;</pre>
     </code-block>
 
@@ -60,7 +60,7 @@ npm install @data-fair/frame</pre>
       Vue Router integration
     </h2>
     <p>
-      For fully reactive navigation syncing functionalities you need a small integration layer with your JS routing system. The source code for the Vue Router integration is available <a href="https://github.com/data-fair/frame/tree/main/src/vue-router">here</a>.
+      For fully reactive navigation syncing functionalities you need a small integration layer with your JS routing system. The source code for the Vue Router integration is available <a href="https://github.com/data-fair/frame/tree/main/lib/vue-router">here</a>.
     </p>
 
     <p class="mt-6">
@@ -73,8 +73,8 @@ npm install @data-fair/frame</pre>
     <code-block language="markup">
       <pre>
 &lt;script&gt;
-  import '@data-fair/frame/src/d-frame.js'
-  import createDFrameAdapter from '@data-fair/frame/src/vue-router/state-change-adapter.js'
+  import '@data-fair/frame/lib/d-frame.js'
+  import createDFrameAdapter from '@data-fair/frame/lib/vue-router/state-change-adapter.js'
 
   const dFrameAdapter = createDFrameAdapter(useRouter())
 &lt;/script&gt;
@@ -89,7 +89,7 @@ npm install @data-fair/frame</pre>
     <code-block language="markup">
       <pre>
 &lt;script&gt;
-  import dFrameContent from '@data-fair/frame/src/vue-router/d-frame-content.js'
+  import dFrameContent from '@data-fair/frame/lib/vue-router/d-frame-content.js'
 
   dFrameContent(useRouter())
 &lt;/script&gt;</pre>

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import { strict as assert } from 'assert'
-import { getPathDirectory, getUrlRelativePath } from '../src/utils/url.js'
+import { getPathDirectory, getUrlRelativePath } from '../lib/utils/url.js'
 
 const getUrlRelativePathShort = (src, current) => getUrlRelativePath(new URL(src), new URL(current))
 

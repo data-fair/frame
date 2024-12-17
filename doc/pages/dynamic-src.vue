@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../src/d-frame'
+import '../../lib/d-frame'
 
 const param = ref(0)
 </script>
