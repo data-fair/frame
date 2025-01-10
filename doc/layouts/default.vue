@@ -78,6 +78,11 @@
             Messages
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/v-iframe-compat">
+          <v-list-item-title>
+            V-Iframe compatibility
+          </v-list-item-title>
+        </v-list-item>
       </v-list>
 
       <template #append>

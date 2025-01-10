@@ -9,7 +9,7 @@
       class="mt-16"
     >
       <span
-        class="pl-8 pr-16 text-h2 text-secondary font-weight-bold border-dashed border-lg border-secondary border-opacity-100"
+        class="pl-8 pr-16 text-h2 text-text-info font-weight-bold border-dashed border-lg border-text-info border-opacity-100"
         style="width:fit-content;position:relative"
       >d-frame<v-icon
         style="position: absolute;right:0;bottom:0;"
@@ -41,21 +41,21 @@
       </v-list-item>
 
       <v-list-item :lines="false">
-        <v-list-item-title>It handles <strong class="text-secondary">dynamic resizing</strong></v-list-item-title>
+        <v-list-item-title>It handles <strong class="text-text-info">dynamic resizing</strong></v-list-item-title>
         <v-list-item-subtitle class="text">
           The size of the iframe can be dynamically adapted to changes in its content.
         </v-list-item-subtitle>
       </v-list-item>
 
       <v-list-item :lines="false">
-        <v-list-item-title>It handles <strong class="text-secondary">navigation syncing</strong></v-list-item-title>
+        <v-list-item-title>It handles <strong class="text-text-info">navigation syncing</strong></v-list-item-title>
         <v-list-item-subtitle class="text">
           Changes in the child state can be reflected as query parameters on the parent page.
         </v-list-item-subtitle>
       </v-list-item>
 
       <v-list-item :lines="false">
-        <v-list-item-title>It handles <strong class="text-secondary">notification passing</strong></v-list-item-title>
+        <v-list-item-title>It handles <strong class="text-text-info">notification passing</strong></v-list-item-title>
         <v-list-item-subtitle class="text">
           You can easily send standardized messages from child to parent for top level display.
         </v-list-item-subtitle>

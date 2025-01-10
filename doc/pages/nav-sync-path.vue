@@ -8,7 +8,7 @@
     </p>
 
     <p class="my-4">
-      This examples uses <code>sync-path="path1"</code> and <code>sync-paath="path2"</code> attributes.
+      This example uses <code>sync-path="path1"</code> and <code>sync-path="path2"</code> attributes.
     </p>
     <v-row>
       <v-col>
@@ -17,7 +17,7 @@
           style="max-width:300px;"
           resize
           sync-path="path1"
-          class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+          class="border-dashed border-md border-text-info border-opacity-100 pa-2"
         />
       </v-col>
       <v-col>
@@ -26,7 +26,7 @@
           style="max-width:300px;"
           resize
           sync-path="path2"
-          class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+          class="border-dashed border-md border-text-info border-opacity-100 pa-2"
         />
       </v-col>
     </v-row>

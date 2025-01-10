@@ -18,7 +18,7 @@
       :src="`${$config.app.baseURL}children/send-notif`"
       style="max-width:300px;"
       resize
-      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
       @notif="(frameNotif: CustomEvent<Notif>) => { notif = frameNotif.detail; showSnackBar = true }"
     />
 
@@ -48,7 +48,7 @@
       :src="`${$config.app.baseURL}children/send-message`"
       style="max-width:300px;"
       resize
-      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
       @message="(frameMessage: CustomEvent<any>) => { message = frameMessage.detail; showSnackBar2 = true }"
     />
 

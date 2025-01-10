@@ -4,13 +4,13 @@
       Dynamic height
     </h1>
     <v-alert
-      color="secondary"
+      color="text-info"
       border="start"
       variant="outlined"
       style="width:fit-content"
       class="mb-4"
     >
-      This functionality requires loading <code>d-frame-content.js</code> or a <code>d-frame-content-*.js</code> variant in the content page.
+      This functionality requires loading <code>d-frame-content.js</code> in the content page.
     </v-alert>
     <p>
       If the frame content contains one or more elements with a <code>data-iframe-height</code> attribute, the height will be adjusted based on their position.
@@ -26,7 +26,7 @@
     <d-frame
       :src="`${$config.app.baseURL}children/resize`"
       style="max-width:300px;"
-      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     />
 
     <h2 class="text-h4 mt-8">
@@ -38,7 +38,7 @@
     <d-frame
       :src="`${$config.app.baseURL}children/resize-offset`"
       style="max-width:300px;"
-      class="border-dashed border-md border-secondary border-opacity-100 pa-2"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     />
   </v-container>
 </template>

@@ -2,6 +2,7 @@
 
 import { isCustomMessage, isHeightMessage, isInitChildMessage, isNotifMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
+import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-notif.js'
 
 export interface StateChangeAdapter {
   stateChange (action: 'push' | 'replace', newUrl: URL): void,
@@ -126,34 +127,40 @@ export default class DFrameElement extends HTMLElement {
   }
 
   onMessage (e: MessageEvent) {
-    if (e.source === this.iframeElement?.contentWindow && Array.isArray(e.data)) {
+    if (e.source === this.iframeElement?.contentWindow) {
       const message = e.data
       this.log('debug', 'received message from child', message)
-      if (isInitChildMessage(message)) {
-        // simple handshake for initialization
-        this.postMessageToChild(['df-parent', 'init', {
-          debug: this.debug,
-          resize: this.resize,
-          syncParams: this.syncParams !== null,
-          syncPath: this.syncPath !== null
-        }])
-        this.init()
-      }
-      if (isHeightMessage(message)) {
-        this.resizedHeight = message[2]
-        this.updateStyle()
-      }
-      if (isStateChangeMessage(message) && (this.parsedSyncParams || this.syncPath)) {
-        const newParentHUrl = getParentUrl(this.srcUrl, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
-        if (newParentHUrl.href !== window.location.href) {
-          this.adapter.stateChange(message[2], newParentHUrl)
+      if (Array.isArray(e.data)) {
+        if (isInitChildMessage(message)) {
+          // simple handshake for initialization
+          this.postMessageToChild(['df-parent', 'init', {
+            debug: this.debug,
+            resize: this.resize,
+            syncParams: this.syncParams !== null,
+            syncPath: this.syncPath !== null
+          }])
+          this.init()
         }
-      }
-      if (isCustomMessage(message)) {
-        this.dispatchEvent(new CustomEvent('message', { detail: message[2] }))
-      }
-      if (isNotifMessage(message)) {
-        this.dispatchEvent(new CustomEvent('notif', { detail: message[2] }))
+        if (isHeightMessage(message)) {
+          this.resizedHeight = message[2]
+          this.updateStyle()
+        }
+        if (isStateChangeMessage(message) && (this.parsedSyncParams || this.syncPath)) {
+          const newParentHUrl = getParentUrl(this.srcUrl, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
+          if (newParentHUrl.href !== window.location.href) {
+            this.adapter.stateChange(message[2], newParentHUrl)
+          }
+        }
+        if (isCustomMessage(message)) {
+          this.dispatchEvent(new CustomEvent('message', { detail: message[2] }))
+        }
+        if (isNotifMessage(message)) {
+          this.dispatchEvent(new CustomEvent('notif', { detail: message[2] }))
+        }
+      } else if (isVIframeUiNotif(message)) {
+        console.log('v-iframe notification', message.uiNotification, convertVIframeUiNotif(message.uiNotification))
+        // maintain compatibility with v-iframe notifications sent through postMessage
+        this.dispatchEvent(new CustomEvent('notif', { detail: convertVIframeUiNotif(message.uiNotification) }))
       }
     }
   }
