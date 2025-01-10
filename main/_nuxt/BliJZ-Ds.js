@@ -1,0 +1,1 @@
+import{D as i}from"./CForoQri.js";function a(o,n){return new i({...n,updateSrc:e=>{const t=window.location.origin+o.options.history.base;e.startsWith(t)?o.replace(e.replace(t,"")):window.location.href=e}})}export{a as v};
