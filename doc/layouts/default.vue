@@ -63,6 +63,11 @@
             Navigation syncing
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/nav-sync-prefix">
+          <v-list-item-title>
+            Navigation syncing with prefix
+          </v-list-item-title>
+        </v-list-item>
         <v-list-item to="/nav-sync-path">
           <v-list-item-title>
             Navigation syncing with path

@@ -16,11 +16,11 @@
       /> for an example.
     </v-alert>
     <p>
-      It is possible to handle complex cases of parameters syncing, accross parent and children.
+      It is possible to handle complex cases of parameters syncing, across parent and children.
     </p>
 
     <p class="my-4">
-      This example reflects the query parameter param1 accross children, while param2 is kept segregated with a prefix. It uses <code>sync-params="param1,param2:child1_"</code> and <code>sync-params="param1,param2:child2_"</code> attributes.
+      This example reflects the query parameter param1 across children, while param2 is kept segregated with a prefix. It uses <code>sync-params="param1,param2:child1_"</code> and <code>sync-params="param1,param2:child2_"</code> attributes.
     </p>
     <v-row>
       <v-col>

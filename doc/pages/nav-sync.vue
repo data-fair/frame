@@ -22,34 +22,7 @@
     />
 
     <h2 class="text-h4 mt-8">
-      Adding prefixes to the query parameters
-    </h2>
-    <p class="my-4">
-      This example reflects query parameters and adds a different prefix for both frames. It uses <code>sync-params="*:child1_"</code> and <code>sync-params="*:child2_"</code> attributes.
-    </p>
-    <v-row>
-      <v-col>
-        <d-frame
-          :src="`${$config.app.baseURL}children/nav-sync`"
-          style="max-width:300px;"
-          resize
-          sync-params="*:child1_"
-          class="border-dashed border-md border-text-info border-opacity-100 pa-2"
-        />
-      </v-col>
-      <v-col>
-        <d-frame
-          :src="`${$config.app.baseURL}children/nav-sync`"
-          style="max-width:300px;"
-          resize
-          sync-params="*:child2_"
-          class="border-dashed border-md border-text-info border-opacity-100 pa-2"
-        />
-      </v-col>
-    </v-row>
-
-    <h2 class="text-h4 mt-8">
-      Receive state change events
+      Receiving state change events
     </h2>
     <p class="my-4">
       This example does not reflect query parameters in the parent frame, but it listens to state changes in the child frame. It uses the <code>state-change-events</code> attribute and <code>@state-change</code> event handler. This mode lets you store the state of the child frame in your own way.

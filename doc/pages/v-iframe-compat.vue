@@ -45,7 +45,7 @@
     </v-snackbar>
 
     <p class="my-4">
-      This example reflects the query parameter param1 accross children, while param2 is kept segregated with a prefix. It uses <code>sync-params="param1,param2:child1_"</code> and <code>sync-params="param1,param2:child2_"</code> attributes.
+      This example reflects the query parameter param1 across children, while param2 is kept segregated with a prefix. It uses <code>sync-params="param1,param2:child1_"</code> and <code>sync-params="param1,param2:child2_"</code> attributes.
     </p>
     <p class="my-4">
       It uses <code>@data-fair/frame/dist/v-iframe-compat/d-frame-content.min.js</code>
