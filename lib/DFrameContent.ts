@@ -72,7 +72,7 @@ export default class DFrameContent {
       if (isInitParentMessage(message)) {
         this.debug = !!message[2].debug
         if (message[2].resize !== 'no') this.initResize()
-        if (message[2].syncParams || message[2].syncPath) this.initSyncParams()
+        if (message[2].syncParams || message[2].syncPath || message[2].stateChangeEvents) this.initStateChangeWatcher()
         this.initialized = true
       }
       if (isUpdateSrcMessage(message)) {
@@ -104,8 +104,8 @@ export default class DFrameContent {
     this.createWindowEventListeners()
   }
 
-  private initSyncParams () {
-    this.log('debug', 'initSyncParams')
+  private initStateChangeWatcher () {
+    this.log('debug', 'initStateChangeWatcher')
     // monkey patch pushState and replaceState to send all state change info to the parent window
     // this is to compensate the lack of event emission by window.history
     const oldReplaceState = window.history.replaceState

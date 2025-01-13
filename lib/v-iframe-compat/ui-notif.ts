@@ -1,4 +1,4 @@
-import type { Notif } from '../messages.ts'
+import type { Notif } from '../messages.js'
 
 type NotifType = 'default' | 'info' | 'success' | 'warning' | 'error'
 

@@ -79,6 +79,12 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('sync-params')
   }
 
+  get stateChangeEvents () { return this.hasAttribute('state-change-events') }
+  set stateChangeEvents (value) {
+    if (value) this.setAttribute('state-change-events', '')
+    else this.removeAttribute('state-change-events')
+  }
+
   public adapter: StateChangeAdapter
 
   /* internal state */
@@ -137,7 +143,8 @@ export default class DFrameElement extends HTMLElement {
             debug: this.debug,
             resize: this.resize,
             syncParams: this.syncParams !== null,
-            syncPath: this.syncPath !== null
+            syncPath: this.syncPath !== null,
+            stateChangeEvents: this.stateChangeEvents
           }])
           this.init()
         }
@@ -145,10 +152,14 @@ export default class DFrameElement extends HTMLElement {
           this.resizedHeight = message[2]
           this.updateStyle()
         }
-        if (isStateChangeMessage(message) && (this.parsedSyncParams || this.syncPath)) {
-          const newParentHUrl = getParentUrl(this.srcUrl, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
-          if (newParentHUrl.href !== window.location.href) {
-            this.adapter.stateChange(message[2], newParentHUrl)
+        if (isStateChangeMessage(message)) {
+          if ((this.parsedSyncParams || this.syncPath)) {
+            const newParentHUrl = getParentUrl(this.srcUrl, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
+            if (newParentHUrl.href !== window.location.href) {
+              this.adapter.stateChange(message[2], newParentHUrl)
+            }
+          } if (this.stateChangeEvents) {
+            this.dispatchEvent(new CustomEvent('state-change', { detail: [message[2], message[3]] }))
           }
         }
         if (isCustomMessage(message)) {
@@ -242,6 +253,9 @@ export default class DFrameElement extends HTMLElement {
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
     this.updateStyle()
     this.updateSrc()
+
+    console.log(this)
+    console.log(this.hasAttribute('onStateChange'))
   }
 
   /* reflected attributes */

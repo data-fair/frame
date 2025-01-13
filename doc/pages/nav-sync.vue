@@ -47,9 +47,34 @@
         />
       </v-col>
     </v-row>
+
+    <h2 class="text-h4 mt-8">
+      Receive state change events
+    </h2>
+    <p class="my-4">
+      This example does not reflect query parameters in the parent frame, but it listens to state changes in the child frame. It uses the <code>state-change-events</code> attribute and <code>@state-change</code> event handler. This mode lets you store the state of the child frame in your own way.
+    </p>
+    <p class="my-4">
+      State URL: <code>{{ stateUrl }}</code>
+    </p>
+    <d-frame
+      :src="`${$config.app.baseURL}children/nav-sync`"
+      style="max-width:300px;"
+      resize
+      debug
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
+      state-change-events
+      @state-change="storeState"
+    />
   </v-container>
 </template>
 
 <script setup lang="ts">
 import '../../lib/d-frame'
+
+const stateUrl = ref('')
+
+const storeState = (state: { detail: [string, string] }) => {
+  stateUrl.value = state.detail[1]
+}
 </script>
