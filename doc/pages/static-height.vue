@@ -29,9 +29,23 @@
       <li>&lt; 1200 px &rArr; 16 / 9 </li>
       <li>&rArr; 21 / 9</li>
     </ul>
+    <v-slider
+      v-model="width1"
+      color="accent"
+      label="width"
+      min="300"
+      max="1300"
+      step="1"
+      thumb-label
+      max-width="500"
+    >
+      <template #thumb-label="{ modelValue }">
+        {{ modelValue }}&nbsp;px
+      </template>
+    </v-slider>
     <d-frame
       :src="`${$config.app.baseURL}children/basic`"
-      style="max-width:300px;"
+      :style="`width:${width1}px;`"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     />
 
@@ -41,10 +55,24 @@
     <p class="my-4">
       The default aspect ratio can be overwritten with an attribute. The following example has <code>aspect-ratio="2"</code>.
     </p>
+    <v-slider
+      v-model="width2"
+      color="accent"
+      label="width"
+      min="300"
+      max="1300"
+      step="1"
+      thumb-label
+      max-width="500"
+    >
+      <template #thumb-label="{ modelValue }">
+        {{ modelValue }}&nbsp;px
+      </template>
+    </v-slider>
     <d-frame
       :src="`${$config.app.baseURL}children/basic`"
       aspect-ratio="2"
-      style="max-width:300px;"
+      :style="`width:${width2}px;`"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     />
 
@@ -66,4 +94,7 @@
 
 <script setup lang="ts">
 import '../../lib/d-frame'
+
+const width1 = ref(600)
+const width2 = ref(600)
 </script>

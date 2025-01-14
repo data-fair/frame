@@ -119,7 +119,8 @@ export default class DFrameElement extends HTMLElement {
     shadowRoot.appendChild(root)
 
     const resizeObserver = new ResizeObserver((entries) => {
-      if (this.width !== entries[0].contentRect.width) {
+      // make this callback insensitive to micro changes
+      if (this.width === undefined || Math.abs(this.width - entries[0].contentRect.width) > 2) {
         this.width = entries[0].contentRect.width
         this.updateAspectRatioHeight()
       }
@@ -232,7 +233,7 @@ export default class DFrameElement extends HTMLElement {
     if (!this.width) return
     if (this.resizedHeight) return
     if (this.height) return
-    this.aspectRatioHeight = this.width / this.actualAspectRatio
+    this.aspectRatioHeight = Math.ceil(this.width / this.actualAspectRatio)
     this.updateStyle()
   }
 
