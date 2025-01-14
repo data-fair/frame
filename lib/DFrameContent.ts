@@ -39,6 +39,7 @@ export default class DFrameContent {
   public options: DFrameContentOptions
   private pendingCheckHeight: boolean = false
   public debug: boolean = false
+  public id?: string
   private throttledCheckHeight: () => void
   private lastHeight = 0
 
@@ -62,15 +63,17 @@ export default class DFrameContent {
 
   private log (level: 'debug' | 'info', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
-    if (level === 'debug') console.debug('d-frame-content', ...args)
-    if (level === 'info') console.info('d-frame-content', ...args)
+    if (level === 'debug') console.timeLog(`${this.id}:d-frame-content`, ...args)
+    if (level === 'info') console.info(`${this.id}:d-frame-content`, ...args)
   }
 
   private onMessage (e: MessageEvent) {
     if (e.source === window.parent && Array.isArray(e.data)) {
       const message = e.data
       if (isInitParentMessage(message)) {
+        this.id = message[2].id
         this.debug = !!message[2].debug
+        if (this.debug) console.time(`${this.id}:d-frame-content`)
         if (message[2].resize !== 'no') this.initResize()
         if (message[2].syncParams || message[2].syncPath || message[2].stateChangeEvents) this.initStateChangeWatcher()
         this.initialized = true
@@ -155,6 +158,7 @@ export default class DFrameContent {
         (dataAttribute ? parseFloat(dataAttribute) : 0)
       if (bottom > max) max = bottom
     }
+    max = Math.ceil(max)
     if (max !== this.lastHeight) {
       this.postMessageToParent(['df-child', 'height', max])
       this.lastHeight = max

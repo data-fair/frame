@@ -29,7 +29,7 @@ export function isNotifMessage (message: any): message is NotifMessage {
 }
 
 // sent as response by the parent as second part of initialization handshake
-export type InitParentMessage = ['df-parent', 'init', { debug?: boolean, resize: 'yes' | 'no' | 'auto', syncParams: boolean, syncPath: boolean, stateChangeEvents: boolean }]
+export type InitParentMessage = ['df-parent', 'init', { id: string, debug?: boolean, resize: 'yes' | 'no' | 'auto', syncParams: boolean, syncPath: boolean, stateChangeEvents: boolean }]
 export type UpdateSrcMessage = ['df-parent', 'updateSrc', string]
 export type ParentMessage = InitParentMessage | UpdateSrcMessage
 

@@ -30,6 +30,11 @@ template.innerHTML = `<style>
 </style><slot name="loader"></slot><iframe class="d-frame-iframe" frameborder="0">`
 
 export default class DFrameElement extends HTMLElement {
+  get id () { return this.getAttribute('id') ?? this.randomId }
+  set id (value) {
+    this.setAttribute('id', value)
+  }
+
   get debug () { return this.hasAttribute('debug') }
   set debug (value) {
     if (value) this.setAttribute('debug', '')
@@ -105,6 +110,7 @@ export default class DFrameElement extends HTMLElement {
   private width: number | undefined
   private aspectRatioHeight: number | undefined
   private resizedHeight: number | undefined
+  private randomId: string
   get actualAspectRatio () {
     if (this.aspectRatio !== 'auto') return Number(this.aspectRatio)
     if (!this.width || this.width < 500) return 1
@@ -115,6 +121,9 @@ export default class DFrameElement extends HTMLElement {
 
   constructor () {
     super()
+
+    this.randomId = Math.random().toString(36).slice(-6)
+
     const root = template.content.cloneNode(true)
     this.slotElement = root.childNodes[1] as HTMLSlotElement
     if (this.resize !== 'yes') this.slotElement.style.display = 'none'
@@ -133,7 +142,6 @@ export default class DFrameElement extends HTMLElement {
         this.updateAspectRatioHeight()
       }
     })
-    // TODO: should we use unobserve or disconnect on cleanup ?
     resizeObserver.observe(this)
 
     this.adapter = new WindowStateChangeAdapter()
@@ -149,6 +157,7 @@ export default class DFrameElement extends HTMLElement {
         if (isInitChildMessage(message)) {
           // simple handshake for initialization
           this.postMessageToChild(['df-parent', 'init', {
+            id: this.id,
             debug: this.debug,
             resize: this.resize,
             syncParams: this.syncParams !== null,
@@ -178,7 +187,6 @@ export default class DFrameElement extends HTMLElement {
           this.dispatchEvent(new CustomEvent('notif', { detail: message[2] }))
         }
       } else if (isVIframeUiNotif(message)) {
-        console.log('v-iframe notification', message.uiNotification, convertVIframeUiNotif(message.uiNotification))
         // maintain compatibility with v-iframe notifications sent through postMessage
         this.dispatchEvent(new CustomEvent('notif', { detail: convertVIframeUiNotif(message.uiNotification) }))
       }
@@ -202,38 +210,53 @@ export default class DFrameElement extends HTMLElement {
     if (this.initialSrc) {
       this.postMessageToChild(['df-parent', 'updateSrc', fullSrc])
     } else {
+      this.log('debug', 'set src attribute of iframe: ' + fullSrc)
       this.iframeElement.setAttribute('src', fullSrc)
     }
   }
 
   updateStyle () {
+    if (!this.connected) return
     let style = ''
     if (this.resize === 'yes' || (this.resize === 'auto' && this.resizedHeight)) {
-      this.iframeElement.setAttribute('scrolling', 'no')
+      if (this.iframeElement.getAttribute('scrolling') !== 'no') {
+        this.log('debug', 'set scrolling attribute of iframe: no')
+        this.iframeElement.setAttribute('scrolling', 'no')
+      }
       if (this.resizedHeight) {
+        this.log('debug', 'height of iframe based on resize message: ' + this.resizedHeight)
         this.slotElement.style.display = 'none'
         style += `height:${this.resizedHeight}px;`
       } else {
         if (this.height) {
+          this.log('debug', 'height of iframe based on direct attribute: ' + this.height)
           this.slotElement.style.display = 'none'
           style += `height:${this.height};`
         } else if (this.aspectRatio !== 'auto' && this.aspectRatio !== null) {
+          this.log('debug', 'height of iframe based on aspect ratio: ' + this.aspectRatioHeight)
           this.slotElement.style.display = 'none'
           style += `height:${this.aspectRatioHeight}px;`
         } else {
+          this.log('debug', 'use slot element while waiting for resize message')
           this.slotElement.style.display = 'block'
           style += 'height:0;'
         }
       }
     }
     if (this.resize === 'no' || (this.resize === 'auto' && !this.resizedHeight)) {
-      this.iframeElement.setAttribute('scrolling', 'auto')
+      if (this.iframeElement.getAttribute('scrolling') !== 'auto') {
+        this.log('debug', 'set scrolling attribute of iframe: auto')
+        this.iframeElement.setAttribute('scrolling', 'auto')
+      }
       if (this.height) {
+        this.log('debug', 'height of iframe based on direct attribute: ' + this.height)
         style += `height:${this.height};`
       } else if (this.aspectRatio !== null) {
+        this.log('debug', 'height of iframe based on aspect ratio: ' + this.aspectRatioHeight)
         style += `height:${this.aspectRatioHeight}px;`
       }
     }
+    this.log('debug', 'set style attribute of iframe: ' + style)
     this.iframeElement.setAttribute('style', style)
   }
 
@@ -248,12 +271,14 @@ export default class DFrameElement extends HTMLElement {
 
   log (level: 'debug' | 'info', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
-    if (level === 'debug') console.debug('d-frame', ...args)
-    if (level === 'info') console.info('d-frame', ...args)
+    if (level === 'debug') console.timeLog(`${this.id}:d-frame`, ...args)
+    // if (level === 'debug') console.debug(`${this.id}:d-frame`, ...args)
+    if (level === 'info') console.info(`${this.id}:d-frame`, ...args)
   }
 
   /* standard custom element callbacks */
   connectedCallback () {
+    if (this.debug) console.time(`${this.id}:d-frame`)
     if (!this.hasAttribute('src')) throw new Error('src is a required attribute')
     this.log('debug', 'connected')
     this.connected = true
@@ -263,16 +288,20 @@ export default class DFrameElement extends HTMLElement {
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
     this.updateStyle()
     this.updateSrc()
+  }
 
-    console.log(this)
-    console.log(this.hasAttribute('onStateChange'))
+  disconnectedCallback () {
+    this.log('debug', 'disconnected')
+    if (this.debug) console.timeEnd(`[${this.id}:d-frame]`)
+    // TODO: more cleanup (resize observer, etc)
   }
 
   /* reflected attributes */
   static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params', 'sync-path'] }
   attributeChangedCallback (name: string, oldValue: any, newValue: any) {
-    this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'aspect-ratio') this.updateAspectRatioHeight()
+    if (!this.connected) return
+    this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'src') this.updateSrc()
     if (name === 'height') this.updateStyle()
     if (name === 'sync-params') this.updateSrc()

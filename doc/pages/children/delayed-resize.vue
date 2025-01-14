@@ -28,7 +28,7 @@ const delayRendering = () => {
   showButton.value = false
   setTimeout(() => {
     showButton.value = true
-  }, 1500)
+  }, 1000)
 }
 delayRendering()
 </script>

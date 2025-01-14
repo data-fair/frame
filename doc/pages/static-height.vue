@@ -15,6 +15,8 @@
       The following example has a class that affects the rules <code>{height: 30vh; width: 50%;}</code>.
     </p>
     <d-frame
+      id="css-styling"
+      debug
       :src="`${$config.app.baseURL}children/basic`"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2 d-frame-css"
     />
@@ -23,7 +25,7 @@
       Auto aspect ratio
     </h2>
     <p class="my-4">
-      You can use the <code>aspect-ratio</code> attribute without a value to apply a default aspect ratio. This aspect ratio is calculated based on the width of the frame like so:
+      You can use the <code>aspect-ratio</code> attribute without a value to apply a default aspect ratio to the <code>iframe</code> inside the <code>d-frame</code> element. This aspect ratio is calculated based on the width of the frame like so:
     </p>
     <ul class="ml-8 mb-4">
       <li>&lt; 500 px &rArr; 1</li>
@@ -46,6 +48,7 @@
       </template>
     </v-slider>
     <d-frame
+      id="auto-aspect-ratio"
       :src="`${$config.app.baseURL}children/basic`"
       :style="`width:${width1}px;`"
       aspect-ratio
@@ -56,7 +59,7 @@
       Explicit aspect ratio
     </h2>
     <p class="my-4">
-      The default aspect ratio can be overwritten with an attribute. The following example has <code>aspect-ratio="2"</code>.
+      The default aspect ratio of the <code>iframe</code> inside the <code>d-frame</code> element can be overwritten with an attribute. The following example has <code>aspect-ratio="2"</code>.
     </p>
     <v-slider
       v-model="width2"
@@ -73,6 +76,7 @@
       </template>
     </v-slider>
     <d-frame
+      id="explicit-aspect-ratio"
       :src="`${$config.app.baseURL}children/basic`"
       aspect-ratio="2"
       :style="`width:${width2}px;`"
@@ -83,10 +87,10 @@
       Explicit height
     </h2>
     <p class="my-4">
-      The height can be overwritten with an attribute. The following has <code>height="30vh"</code>.
+      The height of the <code>iframe</code> inside the <code>d-frame</code> element can be overwritten with an attribute. The following has <code>height="30vh"</code>.
     </p>
     <d-frame
-      debug
+      id="explicit-height"
       :src="`${$config.app.baseURL}children/basic`"
       height="30vh"
       style="max-width:300px;"

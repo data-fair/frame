@@ -24,6 +24,7 @@
       In this example the card inside the frame has a <code>data-iframe-height</code> attribute.
     </p>
     <d-frame
+      id="dynamic-height"
       :src="`${$config.app.baseURL}children/resize`"
       style="max-width:300px;"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
@@ -36,6 +37,7 @@
       In this example the button at the bottom of the frame has a <code>data-iframe-height="30"</code> attribute.
     </p>
     <d-frame
+      id="dynamic-height-offset"
       :src="`${$config.app.baseURL}children/resize-offset`"
       style="max-width:300px;"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
