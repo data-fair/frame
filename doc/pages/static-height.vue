@@ -6,22 +6,24 @@
     <p>There are multiple ways of managing the height of the frame.</p>
 
     <h2 class="text-h4 mt-8">
-      CSS styling
+      Default layout / CSS styling
     </h2>
     <p class="my-4">
-      If a height is applied to the d-frame element through CSS it is respected. The following example has <code>style="height:100px;"</code>.
+      By default the <code>d-frame</code> element acts as a standard <code>block</code> element that can be styled as usual.
+    </p>
+    <p class="my-4">
+      The following example has a class that affects the rules <code>{height: 30vh; width: 50%;}</code>.
     </p>
     <d-frame
       :src="`${$config.app.baseURL}children/basic`"
-      style="height:100px;max-width:300px;"
-      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2 d-frame-css"
     />
 
     <h2 class="text-h4 mt-8">
       Auto aspect ratio
     </h2>
     <p class="my-4">
-      Without a height restriction from the style a default aspect ratio is used. This aspect ratio is calculated based on the width of the frame like so:
+      You can use the <code>aspect-ratio</code> attribute without a value to apply a default aspect ratio. This aspect ratio is calculated based on the width of the frame like so:
     </p>
     <ul class="ml-8 mb-4">
       <li>&lt; 500 px &rArr; 1</li>
@@ -46,6 +48,7 @@
     <d-frame
       :src="`${$config.app.baseURL}children/basic`"
       :style="`width:${width1}px;`"
+      aspect-ratio
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     />
 
@@ -80,12 +83,12 @@
       Explicit height
     </h2>
     <p class="my-4">
-      The height can be overwritten with an attribute. The following has <code>height="50vh"</code>.
+      The height can be overwritten with an attribute. The following has <code>height="30vh"</code>.
     </p>
     <d-frame
       debug
       :src="`${$config.app.baseURL}children/basic`"
-      height="50vh"
+      height="30vh"
       style="max-width:300px;"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     />
@@ -98,3 +101,10 @@ import '../../lib/d-frame'
 const width1 = ref(600)
 const width2 = ref(600)
 </script>
+
+<style scoped>
+.d-frame-css {
+  height: 30vh;
+  width: 50%;
+}
+</style>

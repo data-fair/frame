@@ -24,8 +24,8 @@ template.innerHTML = `<style>
   iframe.d-frame-iframe {
     display: block;
     width: 100%;
+    height: 100%;
     border: none;
-    max-height: 100%;
   }
 </style><slot name="loader"></slot><iframe class="d-frame-iframe" frameborder="0">`
 
@@ -45,8 +45,16 @@ export default class DFrameElement extends HTMLElement {
   get src () { return this.getAttribute('src') as string }
   set src (value) { this.setAttribute('src', value) }
 
-  get aspectRatio () { return this.getAttribute('aspect-ratio') ?? 'auto' }
-  set aspectRatio (value) { this.setAttribute('aspect-ratio', value) }
+  get aspectRatio () {
+    const value = this.getAttribute('aspect-ratio')
+    if (value === '') return 'auto'
+    return value
+  }
+
+  set aspectRatio (value) {
+    if (value !== null) this.setAttribute('aspect-ratio', value)
+    else this.removeAttribute('aspect-ratio')
+  }
 
   get height () { return this.getAttribute('height') }
   set height (value) {
@@ -209,7 +217,7 @@ export default class DFrameElement extends HTMLElement {
         if (this.height) {
           this.slotElement.style.display = 'none'
           style += `height:${this.height};`
-        } else if (this.aspectRatio !== 'auto') {
+        } else if (this.aspectRatio !== 'auto' && this.aspectRatio !== null) {
           this.slotElement.style.display = 'none'
           style += `height:${this.aspectRatioHeight}px;`
         } else {
@@ -222,7 +230,7 @@ export default class DFrameElement extends HTMLElement {
       this.iframeElement.setAttribute('scrolling', 'auto')
       if (this.height) {
         style += `height:${this.height};`
-      } else {
+      } else if (this.aspectRatio !== null) {
         style += `height:${this.aspectRatioHeight}px;`
       }
     }
@@ -231,6 +239,7 @@ export default class DFrameElement extends HTMLElement {
 
   updateAspectRatioHeight () {
     if (!this.width) return
+    if (this.aspectRatio === null) return
     if (this.resizedHeight) return
     if (this.height) return
     this.aspectRatioHeight = Math.ceil(this.width / this.actualAspectRatio)
