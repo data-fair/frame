@@ -1,5 +1,6 @@
 import DFrameContent from '../DFrameContent.js'
 import type { Router } from 'vue-router'
+import { applySearchParams } from '../vue-reactive/util.js'
 
 export type VIframeOptions = {
   router?: Router,
@@ -14,14 +15,7 @@ const dFrameContent = new DFrameContent({
     if (reactiveParams) {
       const srcUrl = new URL(src)
       if (srcUrl.origin === window.location.origin && srcUrl.pathname === window.location.pathname) {
-        const existingKeys = Object.keys(reactiveParams)
-        srcUrl.searchParams.forEach((value, key) => {
-          reactiveParams[key] = value
-          existingKeys.splice(existingKeys.indexOf(key), 1)
-        })
-        existingKeys.forEach(key => {
-          delete reactiveParams[key]
-        })
+        applySearchParams(reactiveParams, srcUrl.searchParams)
         return
       }
     }

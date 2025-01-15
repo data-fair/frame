@@ -1,9 +1,20 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <pre class="code-block"><code
+  <p
+    v-if="caption"
+    class="text-caption"
+  >
+    {{ caption }}
+  </p>
+  <v-card
+    :variant="caption ? 'tonal' : 'text'"
+    class="mb-3"
+  >
+    <pre class="code-block"><code
 :class="`language-${language}`"
              v-html="html"
-  /></pre>
+    /></pre>
+  </v-card>
 </template>
 
 <script setup>
@@ -13,6 +24,10 @@ import Prism from '../assets/prism.js'
 Prism.manual = true
 
 const props = defineProps({
+  caption: {
+    type: String,
+    default: '',
+  },
   language: {
     type: String,
     default: 'javascript',
