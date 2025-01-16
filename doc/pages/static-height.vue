@@ -16,7 +16,6 @@
     </p>
     <d-frame
       id="css-styling"
-      debug
       :src="`${$config.app.baseURL}children/basic`"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2 d-frame-css"
     />

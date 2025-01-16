@@ -21,13 +21,16 @@ template.innerHTML = `<style>
   :host {
     display: block;
   }
+  .d-frame-wrapper {
+    height: 100%;
+  }
   iframe.d-frame-iframe {
     display: block;
     width: 100%;
     height: 100%;
     border: none;
   }
-</style><slot name="loader"></slot><iframe class="d-frame-iframe" frameborder="0">`
+</style><div class="d-frame-wrapper"><slot name="loader"></slot><iframe class="d-frame-iframe" frameborder="0" style="display:none;"></iframe></div>`
 
 export default class DFrameElement extends HTMLElement {
   get id () { return this.getAttribute('id') ?? this.randomId }
@@ -105,13 +108,15 @@ export default class DFrameElement extends HTMLElement {
   private initialSrc: string | undefined
   private srcUrl: URL | undefined
   private parsedSyncParams: ParsedSyncParams | undefined
-  private iframeElement: HTMLIFrameElement
+  private wrapperElement: HTMLDivElement
   private slotElement: HTMLSlotElement
+  private iframeElement: HTMLIFrameElement
   private width: number | undefined
   private aspectRatioHeight: number | undefined
   private resizedHeight: number | undefined
   private randomId: string
   private iframeLoaded: boolean = false
+  private ready: boolean = false
 
   get actualAspectRatio () {
     if (this.aspectRatio !== 'auto') return Number(this.aspectRatio)
@@ -127,10 +132,10 @@ export default class DFrameElement extends HTMLElement {
     this.randomId = Math.random().toString(36).slice(-6)
 
     const root = template.content.cloneNode(true)
-    this.slotElement = root.childNodes[1] as HTMLSlotElement
-    if (this.resize !== 'yes') this.slotElement.style.display = 'none'
+    this.wrapperElement = root.childNodes[1] as HTMLDivElement
+    this.slotElement = this.wrapperElement.childNodes[0] as HTMLSlotElement
 
-    this.iframeElement = root.childNodes[2] as HTMLIFrameElement
+    this.iframeElement = this.wrapperElement.childNodes[1] as HTMLIFrameElement
     this.iframeElement.setAttribute('scrolling', this.resize === 'yes' ? 'no' : 'auto')
     this.iframeElement.setAttribute('loading', this.lazy ? 'lazy' : 'eager')
     this.iframeElement.addEventListener('load', () => {
@@ -138,6 +143,11 @@ export default class DFrameElement extends HTMLElement {
         this.log('debug', 'iframe loaded')
         this.iframeLoaded = true
         this.dispatchEvent(new CustomEvent('iframe-load'))
+        if (this.resize !== 'yes') {
+          this.ready = true
+          this.dispatchEvent(new CustomEvent('ready'))
+          this.updateStyle()
+        }
       }
     })
 
@@ -177,6 +187,10 @@ export default class DFrameElement extends HTMLElement {
         }
         if (isHeightMessage(message)) {
           this.resizedHeight = message[2]
+          if (this.resize === 'yes' && !this.ready) {
+            this.ready = true
+            this.dispatchEvent(new CustomEvent('ready'))
+          }
           this.updateStyle()
         }
         if (isStateChangeMessage(message)) {
@@ -226,47 +240,47 @@ export default class DFrameElement extends HTMLElement {
 
   updateStyle () {
     if (!this.connected) return
-    let style = ''
+
+    // toggle loader slot vs iframe visibility
+    if (this.ready && this.iframeElement.getAttribute('style') !== '') {
+      this.log('debug', 'toggle loader slot and iframe visibility')
+      this.iframeElement.setAttribute('style', '')
+      this.slotElement.setAttribute('style', 'display:none;')
+    }
+
+    // set scrolling attribute of iframe
     if (this.resize === 'yes' || (this.resize === 'auto' && this.resizedHeight)) {
       if (this.iframeElement.getAttribute('scrolling') !== 'no') {
         this.log('debug', 'set scrolling attribute of iframe: no')
         this.iframeElement.setAttribute('scrolling', 'no')
       }
-      if (this.resizedHeight) {
-        this.log('debug', 'height of iframe based on resize message: ' + this.resizedHeight)
-        this.slotElement.style.display = 'none'
-        style += `height:${this.resizedHeight}px;`
-      } else {
-        if (this.height) {
-          this.log('debug', 'height of iframe based on direct attribute: ' + this.height)
-          this.slotElement.style.display = 'none'
-          style += `height:${this.height};`
-        } else if (this.aspectRatio !== 'auto' && this.aspectRatio !== null) {
-          this.log('debug', 'height of iframe based on aspect ratio: ' + this.aspectRatioHeight)
-          this.slotElement.style.display = 'none'
-          style += `height:${this.aspectRatioHeight}px;`
-        } else {
-          this.log('debug', 'use slot element while waiting for resize message')
-          this.slotElement.style.display = 'block'
-          style += 'height:0;'
-        }
-      }
-    }
-    if (this.resize === 'no' || (this.resize === 'auto' && !this.resizedHeight)) {
+    } else {
       if (this.iframeElement.getAttribute('scrolling') !== 'auto') {
         this.log('debug', 'set scrolling attribute of iframe: auto')
         this.iframeElement.setAttribute('scrolling', 'auto')
       }
+    }
+
+    // manage height of iframe wrapper
+    let wrapperHeight: string | undefined
+    if (this.resizedHeight) {
+      this.log('debug', 'height of iframe based on resize message: ' + this.resizedHeight)
+      wrapperHeight = this.resizedHeight + 'px'
+    } else {
       if (this.height) {
         this.log('debug', 'height of iframe based on direct attribute: ' + this.height)
-        style += `height:${this.height};`
+        wrapperHeight = this.height
       } else if (this.aspectRatio !== null) {
         this.log('debug', 'height of iframe based on aspect ratio: ' + this.aspectRatioHeight)
-        style += `height:${this.aspectRatioHeight}px;`
+        wrapperHeight = this.aspectRatioHeight + 'px'
       }
     }
-    this.log('debug', 'set style attribute of iframe: ' + style)
-    this.iframeElement.setAttribute('style', style)
+    if (wrapperHeight !== undefined) {
+      this.log('debug', 'set height iframe wrapper: ' + wrapperHeight)
+      this.wrapperElement.setAttribute('style', `height:${wrapperHeight};`)
+    } else {
+      this.wrapperElement.setAttribute('style', 'height:100%;')
+    }
   }
 
   updateAspectRatioHeight () {
@@ -307,7 +321,7 @@ export default class DFrameElement extends HTMLElement {
 
   disconnectedCallback () {
     this.log('debug', 'disconnected')
-    if (this.debug) console.timeEnd(`[${this.id}:d-frame]`)
+    if (this.debug) console.timeEnd(`d-frame:${this.id}`)
     // TODO: more cleanup (resize observer, etc)
   }
 

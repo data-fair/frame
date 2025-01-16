@@ -25,6 +25,7 @@
     </p>
     <d-frame
       id="dynamic-height"
+      debug
       :src="`${$config.app.baseURL}children/resize`"
       style="max-width:300px;"
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
