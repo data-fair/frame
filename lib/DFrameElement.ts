@@ -271,14 +271,20 @@ export default class DFrameElement extends HTMLElement {
 
   log (level: 'debug' | 'info', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
-    if (level === 'debug') console.timeLog(`${this.id}:d-frame`, ...args)
-    // if (level === 'debug') console.debug(`${this.id}:d-frame`, ...args)
-    if (level === 'info') console.info(`${this.id}:d-frame`, ...args)
+    if (level === 'debug') console.timeLog(`d-frame:${this.id}`, ...args)
+    if (level === 'info') console.info(`d-frame:${this.id}`, ...args)
   }
 
   /* standard custom element callbacks */
   connectedCallback () {
-    if (this.debug) console.time(`${this.id}:d-frame`)
+    if (!this.debug) {
+      const globalDebug = window.localStorage.getItem('debug')
+      if (globalDebug) {
+        const debugParts = globalDebug.split(',')
+        if (debugParts.includes('d-frame') || debugParts.includes('d-frame:' + this.id)) this.debug = true
+      }
+    }
+    if (this.debug) console.time(`d-frame:${this.id}`)
     if (!this.hasAttribute('src')) throw new Error('src is a required attribute')
     this.log('debug', 'connected')
     this.connected = true

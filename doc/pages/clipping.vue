@@ -16,6 +16,7 @@
       If the parent has prior knowledge that the child supports dynamic resizing, it is better to set the <code>resize</code> attribute so that the default aspect ratio is not applied.
     </p>
     <d-frame
+      id="d-frame-resize"
       :src="`${$config.app.baseURL}children/delayed-resize`"
       style="max-width:300px;"
       resize
@@ -29,6 +30,7 @@
       In this example the card inside the d-frame has a <code>loader</code> slot that uses Vuetify's VSkeletonLoader component. This requires setting the <code>resize</code> attribute.
     </p>
     <d-frame
+      id="d-frame-loader"
       :src="`${$config.app.baseURL}children/delayed-resize`"
       style="max-width:300px;"
       resize

@@ -63,8 +63,8 @@ export default class DFrameContent {
 
   private log (level: 'debug' | 'info', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
-    if (level === 'debug') console.timeLog(`${this.id}:d-frame-content`, ...args)
-    if (level === 'info') console.info(`${this.id}:d-frame-content`, ...args)
+    if (level === 'debug') console.timeLog(`d-frame:${this.id}:content`, ...args)
+    if (level === 'info') console.info(`d-frame:${this.id}:content`, ...args)
   }
 
   private onMessage (e: MessageEvent) {
@@ -73,7 +73,7 @@ export default class DFrameContent {
       if (isInitParentMessage(message)) {
         this.id = message[2].id
         this.debug = !!message[2].debug
-        if (this.debug) console.time(`${this.id}:d-frame-content`)
+        if (this.debug) console.time(`d-frame:${this.id}:content`)
         if (message[2].resize !== 'no') this.initResize()
         if (message[2].syncParams || message[2].syncPath || message[2].stateChangeEvents) this.initStateChangeWatcher()
         this.initialized = true
