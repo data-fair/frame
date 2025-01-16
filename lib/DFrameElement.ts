@@ -111,6 +111,8 @@ export default class DFrameElement extends HTMLElement {
   private aspectRatioHeight: number | undefined
   private resizedHeight: number | undefined
   private randomId: string
+  private iframeLoaded: boolean = false
+
   get actualAspectRatio () {
     if (this.aspectRatio !== 'auto') return Number(this.aspectRatio)
     if (!this.width || this.width < 500) return 1
@@ -131,6 +133,13 @@ export default class DFrameElement extends HTMLElement {
     this.iframeElement = root.childNodes[2] as HTMLIFrameElement
     this.iframeElement.setAttribute('scrolling', this.resize === 'yes' ? 'no' : 'auto')
     this.iframeElement.setAttribute('loading', this.lazy ? 'lazy' : 'eager')
+    this.iframeElement.addEventListener('load', () => {
+      if (this.iframeElement.getAttribute('src')) {
+        this.log('debug', 'iframe loaded')
+        this.iframeLoaded = true
+        this.dispatchEvent(new CustomEvent('iframe-load'))
+      }
+    })
 
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(root)

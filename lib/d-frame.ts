@@ -1,3 +1,5 @@
 import DFrameElement from './DFrameElement.js'
 
-customElements.define('d-frame', DFrameElement)
+if (!customElements.get('d-frame')) {
+  customElements.define('d-frame', DFrameElement)
+}

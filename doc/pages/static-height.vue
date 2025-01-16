@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../lib/d-frame'
+import '../components/d-frame-redefine'
 
 const width1 = ref(600)
 const width2 = ref(600)

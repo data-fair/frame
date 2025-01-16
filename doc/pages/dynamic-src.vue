@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../lib/d-frame'
+import '../components/d-frame-redefine'
 
 const param = ref(0)
 </script>

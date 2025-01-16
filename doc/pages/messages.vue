@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import '../../lib/d-frame'
+import '../components/d-frame-redefine'
 import type { Notif } from '../../lib/messages'
 
 const showSnackBar = ref(false)
