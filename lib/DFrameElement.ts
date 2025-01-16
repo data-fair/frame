@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isCustomMessage, isHeightMessage, isInitChildMessage, isNotifMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
+import { isCustomMessage, isHeightMessage, isInitChildMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
 import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-notif.js'
 
@@ -30,7 +30,7 @@ template.innerHTML = `<style>
     height: 100%;
     border: none;
   }
-</style><div class="d-frame-wrapper"><slot name="loader"></slot><iframe class="d-frame-iframe" frameborder="0" style="display:none;"></iframe></div>`
+</style><div class="d-frame-wrapper"><slot name="loading"><div style="min-height:150px;"></div></slot><iframe class="d-frame-iframe" frameborder="0" style="visibility:hidden;position:absolute;height:0px;"></iframe></div>`
 
 export default class DFrameElement extends HTMLElement {
   get id () { return this.getAttribute('id') ?? this.randomId }
@@ -101,6 +101,12 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('state-change-events')
   }
 
+  get readyMessage () { return this.hasAttribute('ready-message') }
+  set readyMessage (value) {
+    if (value) this.setAttribute('ready-message', '')
+    else this.removeAttribute('ready-message')
+  }
+
   public adapter: StateChangeAdapter
 
   /* internal state */
@@ -143,7 +149,7 @@ export default class DFrameElement extends HTMLElement {
         this.log('debug', 'iframe loaded')
         this.iframeLoaded = true
         this.dispatchEvent(new CustomEvent('iframe-load'))
-        if (this.resize !== 'yes') {
+        if (this.resize !== 'yes' && !this.readyMessage) {
           this.ready = true
           this.dispatchEvent(new CustomEvent('ready'))
           this.updateStyle()
@@ -187,7 +193,7 @@ export default class DFrameElement extends HTMLElement {
         }
         if (isHeightMessage(message)) {
           this.resizedHeight = message[2]
-          if (this.resize === 'yes' && !this.ready) {
+          if (this.resize === 'yes' && !this.ready && !this.readyMessage) {
             this.ready = true
             this.dispatchEvent(new CustomEvent('ready'))
           }
@@ -208,6 +214,11 @@ export default class DFrameElement extends HTMLElement {
         }
         if (isNotifMessage(message)) {
           this.dispatchEvent(new CustomEvent('notif', { detail: message[2] }))
+        }
+        if (isReadyMessage(message)) {
+          this.ready = true
+          this.dispatchEvent(new CustomEvent('ready'))
+          this.updateStyle()
         }
       } else if (isVIframeUiNotif(message)) {
         // maintain compatibility with v-iframe notifications sent through postMessage
@@ -241,26 +252,6 @@ export default class DFrameElement extends HTMLElement {
   updateStyle () {
     if (!this.connected) return
 
-    // toggle loader slot vs iframe visibility
-    if (this.ready && this.iframeElement.getAttribute('style') !== '') {
-      this.log('debug', 'toggle loader slot and iframe visibility')
-      this.iframeElement.setAttribute('style', '')
-      this.slotElement.setAttribute('style', 'display:none;')
-    }
-
-    // set scrolling attribute of iframe
-    if (this.resize === 'yes' || (this.resize === 'auto' && this.resizedHeight)) {
-      if (this.iframeElement.getAttribute('scrolling') !== 'no') {
-        this.log('debug', 'set scrolling attribute of iframe: no')
-        this.iframeElement.setAttribute('scrolling', 'no')
-      }
-    } else {
-      if (this.iframeElement.getAttribute('scrolling') !== 'auto') {
-        this.log('debug', 'set scrolling attribute of iframe: auto')
-        this.iframeElement.setAttribute('scrolling', 'auto')
-      }
-    }
-
     // manage height of iframe wrapper
     let wrapperHeight: string | undefined
     if (this.resizedHeight) {
@@ -277,9 +268,29 @@ export default class DFrameElement extends HTMLElement {
     }
     if (wrapperHeight !== undefined) {
       this.log('debug', 'set height iframe wrapper: ' + wrapperHeight)
-      this.wrapperElement.setAttribute('style', `height:${wrapperHeight};`)
+      this.wrapperElement.setAttribute('style', `height:${wrapperHeight};min-height:0;`)
     } else {
-      this.wrapperElement.setAttribute('style', 'height:100%;')
+      this.wrapperElement.setAttribute('style', '')
+    }
+
+    // set scrolling attribute of iframe
+    if (this.resize === 'yes' || (this.resize === 'auto' && this.resizedHeight)) {
+      if (this.iframeElement.getAttribute('scrolling') !== 'no') {
+        this.log('debug', 'set scrolling attribute of iframe: no')
+        this.iframeElement.setAttribute('scrolling', 'no')
+      }
+    } else {
+      if (this.iframeElement.getAttribute('scrolling') !== 'auto') {
+        this.log('debug', 'set scrolling attribute of iframe: auto')
+        this.iframeElement.setAttribute('scrolling', 'auto')
+      }
+    }
+
+    // toggle loading slot vs iframe visibility
+    if (this.ready && this.iframeElement.getAttribute('style') !== '') {
+      this.log('debug', 'toggle loading slot and iframe visibility')
+      this.iframeElement.setAttribute('style', '')
+      this.slotElement.setAttribute('style', 'display:none;')
     }
   }
 

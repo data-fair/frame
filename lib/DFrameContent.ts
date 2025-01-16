@@ -100,6 +100,10 @@ export default class DFrameContent {
     this.postMessageToParent(['df-child', 'custom', msg])
   }
 
+  public ready () {
+    this.postMessageToParent(['df-child', 'ready'])
+  }
+
   private initResize () {
     this.log('debug', 'initResize')
     this.checkHeight()
@@ -150,16 +154,19 @@ export default class DFrameContent {
 
   private checkHeight () {
     const elements = document.querySelectorAll('[data-iframe-height]')
+    let maxWithoutOffset = 0
     let max = 0
     for (const element of elements) {
       const dataAttribute = element.getAttribute('data-iframe-height')
-      const bottom = element.getBoundingClientRect().bottom +
-        parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom')) +
-        (dataAttribute ? parseFloat(dataAttribute) : 0)
+      const bottomWithoutOffset = element.getBoundingClientRect().bottom +
+        parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom'))
+      const bottom = dataAttribute ? (bottomWithoutOffset + parseFloat(dataAttribute)) : bottomWithoutOffset
+      if (bottomWithoutOffset > maxWithoutOffset) maxWithoutOffset = bottomWithoutOffset
       if (bottom > max) max = bottom
     }
+
     max = Math.ceil(max)
-    if (max !== this.lastHeight) {
+    if (maxWithoutOffset > 0 && max !== this.lastHeight) {
       this.postMessageToParent(['df-child', 'height', max])
       this.lastHeight = max
     }

@@ -4,18 +4,14 @@
     color="primary"
   >
     <v-card-text class="text-caption">
-      This is a frame with a delayed rendering to show the effect of initial resizing.
+      This is a frame with a delayed initial size calculation.
       <br>
-      <v-btn
-        v-if="showButton"
-        color="primary"
-        variant="elevated"
-        class="mt-4"
+      <v-alert
+        v-if="showDelayedContent"
         data-iframe-height="17"
-        @click="delayRendering"
       >
-        Hide
-      </v-btn>
+        delayed content
+      </v-alert>
     </v-card-text>
   </v-card>
 </template>
@@ -23,12 +19,8 @@
 <script setup lang="ts">
 import '../../../lib/d-frame-content'
 
-const showButton = ref(false)
-const delayRendering = () => {
-  showButton.value = false
-  setTimeout(() => {
-    showButton.value = true
-  }, 1000)
-}
-delayRendering()
+const showDelayedContent = ref(false)
+setTimeout(() => {
+  showDelayedContent.value = true
+}, 1000)
 </script>

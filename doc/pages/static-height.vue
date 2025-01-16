@@ -12,12 +12,23 @@
       By default the <code>d-frame</code> element acts as a standard <code>block</code> element that can be styled as usual.
     </p>
     <p class="my-4">
-      The following example has a class that affects the rules <code>{height: 30vh; width: 50%;}</code>.
+      The following example has a class that sets the rules <code>{height: 30vh; width: 50%;}</code>.
     </p>
+
     <d-frame
       id="css-styling"
       :src="`${$config.app.baseURL}children/basic`"
-      class="border-dashed border-md border-text-info border-opacity-100 pa-2 d-frame-css"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2 d-frame-css1"
+    />
+
+    <p class="my-4">
+      The following example has a class that sets the rules <code>{height: 100px; width: 200px;}</code>.
+    </p>
+
+    <d-frame
+      id="css-styling"
+      :src="`${$config.app.baseURL}children/basic`"
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2 d-frame-css2"
     />
 
     <h2 class="text-h4 mt-8">
@@ -106,8 +117,12 @@ const width2 = ref(600)
 </script>
 
 <style scoped>
-.d-frame-css {
+.d-frame-css1 {
   height: 30vh;
   width: 50%;
+}
+.d-frame-css2 {
+  height: 100px;
+  width: 200px;
 }
 </style>
