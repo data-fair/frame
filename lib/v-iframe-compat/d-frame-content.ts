@@ -4,7 +4,7 @@ import { applySearchParams } from '../vue-reactive/util.js'
 
 export type VIframeOptions = {
   router?: Router,
-  reactiveParams?: Record<string, string>
+  reactiveParams?: Record<string, string> | boolean
 }
 
 const dFrameContent = new DFrameContent({
@@ -12,7 +12,7 @@ const dFrameContent = new DFrameContent({
     const vIframeOptions = (window as Window & { vIframeOptions?: VIframeOptions }).vIframeOptions
 
     const reactiveParams = vIframeOptions?.reactiveParams
-    if (reactiveParams) {
+    if (reactiveParams && typeof reactiveParams === 'object') {
       const srcUrl = new URL(src)
       if (srcUrl.origin === window.location.origin && srcUrl.pathname === window.location.pathname) {
         applySearchParams(reactiveParams, srcUrl.searchParams)
