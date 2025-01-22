@@ -44,12 +44,6 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('debug')
   }
 
-  get lazy () { return this.hasAttribute('lazy') }
-  set lazy (value) {
-    if (value) this.setAttribute('lazy', '')
-    else this.removeAttribute('lazy')
-  }
-
   get src () { return this.getAttribute('src') as string }
   set src (value) { this.setAttribute('src', value) }
 
@@ -143,8 +137,6 @@ export default class DFrameElement extends HTMLElement {
     this.slotElement = this.wrapperElement.childNodes[0] as HTMLSlotElement
 
     this.iframeElement = this.wrapperElement.childNodes[1] as HTMLIFrameElement
-    this.iframeElement.setAttribute('scrolling', this.resize === 'yes' ? 'no' : 'auto')
-    this.iframeElement.setAttribute('loading', this.lazy ? 'lazy' : 'eager')
     this.iframeElement.addEventListener('load', () => {
       if (this.iframeElement.getAttribute('src')) {
         this.log('debug', 'iframe loaded')
@@ -316,6 +308,7 @@ export default class DFrameElement extends HTMLElement {
         }
       }
     }
+    this.log('debug', 'update iframe extra attributes', previousAttrs, newAttrs)
     for (const key of Object.keys(previousAttrs)) {
       if (!(key in newAttrs)) {
         this.iframeElement.removeAttribute(key)
@@ -352,8 +345,8 @@ export default class DFrameElement extends HTMLElement {
     }
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
     this.updateStyle()
-    this.updateSrc()
     this.updateIframeExtraAttrs()
+    this.updateSrc()
   }
 
   disconnectedCallback () {
