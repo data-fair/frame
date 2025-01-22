@@ -30,7 +30,7 @@ template.innerHTML = `<style>
     height: 100%;
     border: none;
   }
-</style><div class="d-frame-wrapper"><slot name="loading"><div style="min-height:150px;"></div></slot><iframe class="d-frame-iframe" frameborder="0" style="visibility:hidden;position:absolute;height:0px;"></iframe></div>`
+</style><div class="d-frame-wrapper"><slot name="loading"><div style="min-height:150px;"></div></slot><iframe class="d-frame-iframe" style="visibility:hidden;position:absolute;height:0px;"></iframe></div>`
 
 export default class DFrameElement extends HTMLElement {
   get id () { return this.getAttribute('id') ?? this.randomId }
@@ -123,6 +123,7 @@ export default class DFrameElement extends HTMLElement {
   private randomId: string
   private iframeLoaded: boolean = false
   private ready: boolean = false
+  private iframeExtraAttrs: { [key: string]: string } = {}
 
   get actualAspectRatio () {
     if (this.aspectRatio !== 'auto') return Number(this.aspectRatio)
@@ -303,6 +304,30 @@ export default class DFrameElement extends HTMLElement {
     this.updateStyle()
   }
 
+  updateIframeExtraAttrs () {
+    const previousAttrs = this.iframeExtraAttrs
+    const newAttrs: { [key: string]: string } = {}
+    for (const name of this.getAttributeNames()) {
+      if (name.startsWith('iframe-')) {
+        const value = this.getAttribute(name)
+        if (value !== null) {
+          const attrName = name.slice(7)
+          newAttrs[attrName] = value
+        }
+      }
+    }
+    for (const key of Object.keys(previousAttrs)) {
+      if (!(key in newAttrs)) {
+        this.iframeElement.removeAttribute(key)
+      }
+    }
+    for (const key of Object.keys(newAttrs)) {
+      if (newAttrs[key] !== previousAttrs[key]) {
+        this.iframeElement.setAttribute(key, newAttrs[key])
+      }
+    }
+  }
+
   log (level: 'debug' | 'info', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
     if (level === 'debug') console.timeLog(`d-frame:${this.id}`, ...args)
@@ -328,6 +353,7 @@ export default class DFrameElement extends HTMLElement {
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
     this.updateStyle()
     this.updateSrc()
+    this.updateIframeExtraAttrs()
   }
 
   disconnectedCallback () {
@@ -340,6 +366,7 @@ export default class DFrameElement extends HTMLElement {
   static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params', 'sync-path'] }
   attributeChangedCallback (name: string, oldValue: any, newValue: any) {
     if (name === 'aspect-ratio') this.updateAspectRatioHeight()
+    if (name.startsWith('iframe-')) this.updateIframeExtraAttrs()
     if (!this.connected) return
     this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'src') this.updateSrc()
