@@ -21,10 +21,18 @@ const dFrameContent = new DFrameContent({
     }
 
     if (vIframeOptions?.router) {
-      const urlPrefix = window.location.origin + vIframeOptions.router.options.history.base
-      if (src.startsWith(urlPrefix)) {
-        vIframeOptions.router.replace(src.replace(urlPrefix, ''))
-        return
+      // @ts-ignore vue-router v2
+      let base = vIframeOptions.router.options?.base
+      if (!base && vIframeOptions.router.options?.history) base = vIframeOptions.router.options.history.base
+      if (!base) {
+        console.error('failed to access base path in router (no router.options.base nor router.options.history.base)')
+        window.location.href = src
+      } else {
+        const urlPrefix = window.location.origin + base
+        if (src.startsWith(urlPrefix)) {
+          vIframeOptions.router.replace(src.replace(urlPrefix, ''))
+          return
+        }
       }
     }
 
