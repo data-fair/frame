@@ -8,8 +8,7 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
     ...options,
     updateSrc: (src: string, instance: DFrameContent) => {
       // @ts-ignore vue-router v2
-      let base = router.options?.base
-      if (!base && router.options?.history) base = router.options.history.base
+      const base = router.options?.base ?? router.options.history?.base
       if (base === null || base === undefined) {
         instance.log('error', 'failed to access base path in router (no router.options.base nor router.options.history.base)', router)
       } else {
@@ -17,7 +16,8 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
         if (!src.startsWith(urlPrefix)) {
           instance.log('info', 'src does not start with base path', src, urlPrefix)
         } else {
-          const newRoute = src.replace(urlPrefix, '')
+          let newRoute = src.replace(urlPrefix, '')
+          if (!newRoute.startsWith('/')) newRoute = '/' + newRoute
           instance.log('debug', 'applying router.replace', newRoute)
           router.replace(newRoute)
           return
