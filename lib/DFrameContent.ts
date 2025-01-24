@@ -32,7 +32,7 @@ const windowEventTypes = [
   'otransitionend', 'resize'
 ]
 
-export type DFrameContentOptions = { updateSrc?: (src: string) => void }
+export type DFrameContentOptions = { updateSrc?: (src: string, instance: DFrameContent) => void }
 
 export default class DFrameContent {
   public initialized: boolean = false
@@ -61,10 +61,11 @@ export default class DFrameContent {
     this.postMessageToParent(['df-child', 'init'])
   }
 
-  private log (level: 'debug' | 'info', ...args: any[]) {
+  public log (level: 'debug' | 'info' | 'error', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
     if (level === 'debug') console.timeLog(`d-frame:${this.id}:content`, ...args)
     if (level === 'info') console.info(`d-frame:${this.id}:content`, ...args)
+    if (level === 'error') console.error(`d-frame:${this.id}:content`, ...args)
   }
 
   private onMessage (e: MessageEvent) {
@@ -80,7 +81,7 @@ export default class DFrameContent {
       }
       if (isUpdateSrcMessage(message)) {
         if (this.options.updateSrc) {
-          this.options.updateSrc(message[2].startsWith('/') ? window.location.origin + message[2] : message[2])
+          this.options.updateSrc(message[2].startsWith('/') ? window.location.origin + message[2] : message[2], this)
         } else {
           window.location.href = message[2]
         }
