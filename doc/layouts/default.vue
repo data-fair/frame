@@ -88,6 +88,11 @@
             Messages
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/mouse-events">
+          <v-list-item-title>
+            Mouse events
+          </v-list-item-title>
+        </v-list-item>
         <v-list-item to="/extra-attrs">
           <v-list-item-title>
             Extra attributes

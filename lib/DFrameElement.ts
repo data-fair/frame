@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isCustomMessage, isHeightMessage, isInitChildMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, type ParentMessage } from './messages.js'
+import { isCustomMessage, isHeightMessage, isInitChildMessage, isMouseEventMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, type MouseEventMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
 import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-notif.js'
 
@@ -101,6 +101,18 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('ready-message')
   }
 
+  get mouseEvents () {
+    const attr = this.getAttribute('mouse-events')
+    if (attr === null) return null
+    if (attr === '') return ['click', 'dblclick', 'mousedown', 'mouseup']
+    return attr.split(',')
+  }
+
+  set mouseEvents (value) {
+    if (value === null) this.removeAttribute('mouse-events')
+    else this.setAttribute('mouse-events', value.join(','))
+  }
+
   public adapter: StateChangeAdapter
 
   /* internal state */
@@ -180,7 +192,8 @@ export default class DFrameElement extends HTMLElement {
             resize: this.resize,
             syncParams: this.syncParams !== null,
             syncPath: this.syncPath !== null,
-            stateChangeEvents: this.stateChangeEvents
+            stateChangeEvents: this.stateChangeEvents,
+            mouseEvents: this.mouseEvents
           }])
           this.init()
         }
@@ -213,6 +226,7 @@ export default class DFrameElement extends HTMLElement {
           this.dispatchEvent(new CustomEvent('ready'))
           this.updateStyle()
         }
+        if (isMouseEventMessage(message)) this.applySyncedMouseEvent(message)
       } else if (isVIframeUiNotif(message)) {
         // maintain compatibility with v-iframe notifications sent through postMessage
         this.dispatchEvent(new CustomEvent('notif', { detail: convertVIframeUiNotif(message.uiNotification) }))
@@ -321,6 +335,32 @@ export default class DFrameElement extends HTMLElement {
     }
   }
 
+  private currentSyncedMouseEvents: Set<MouseEvent['type']> = new Set()
+
+  private initMouseEvents (types: MouseEvent['type'][]) {
+    this.log('debug', 'initMouseEvents')
+    for (const eventType of types) {
+      document.addEventListener(eventType, (e) => {
+        if (!(e instanceof MouseEvent)) return
+        this.transmitSyncedMouseEvent(['df-global', 'mouse', eventType, { altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey }])
+      }, true)
+    }
+  }
+
+  private transmitSyncedMouseEvent (message: MouseEventMessage) {
+    if (this.currentSyncedMouseEvents.has(message[2])) {
+      this.currentSyncedMouseEvents.delete(message[2])
+    } else {
+      this.postMessageToChild(message)
+    }
+  }
+
+  private applySyncedMouseEvent (message: MouseEventMessage) {
+    this.currentSyncedMouseEvents.add(message[2])
+    const event = new MouseEvent(message[2], { bubbles: true, cancelable: true, view: window, ...message[3] })
+    this.dispatchEvent(event)
+  }
+
   log (level: 'debug' | 'info', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
     if (level === 'debug') console.timeLog(`d-frame:${this.id}`, ...args)
@@ -347,6 +387,7 @@ export default class DFrameElement extends HTMLElement {
     this.updateStyle()
     this.updateIframeExtraAttrs()
     this.updateSrc()
+    if (this.mouseEvents) this.initMouseEvents(this.mouseEvents)
   }
 
   disconnectedCallback () {

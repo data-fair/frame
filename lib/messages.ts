@@ -1,3 +1,9 @@
+export type MouseEventMessage = ['df-global', 'mouse', MouseEvent['type'], Pick<MouseEvent, 'altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey'>]
+
+export function isMouseEventMessage (message: any): message is MouseEventMessage {
+  return message[0] === 'df-global' && message[1] === 'mouse'
+}
+
 // sent by the child as first part of initialization handshake
 export type InitChildMessage = ['df-child', 'init']
 export type HeightMessage = ['df-child', 'height', number]
@@ -5,7 +11,7 @@ export type StateChangeMessage = ['df-child', 'stateChange', 'replace' | 'push',
 export type CustomMessage = ['df-child', 'custom', any ]
 export type NotifMessage = ['df-child', 'notif', Notif]
 export type ReadyMessage = ['df-child', 'ready']
-export type ChildMessage = InitChildMessage | HeightMessage | StateChangeMessage | CustomMessage | NotifMessage | ReadyMessage
+export type ChildMessage = InitChildMessage | HeightMessage | StateChangeMessage | CustomMessage | NotifMessage | MouseEventMessage | ReadyMessage
 
 export type Notif = {
   type: 'default' | 'info' | 'success' | 'warning' | 'error',
@@ -39,10 +45,11 @@ export type InitParentMessage = ['df-parent', 'init', {
   resize: 'yes' | 'no' | 'auto',
   syncParams: boolean,
   syncPath: boolean,
-  stateChangeEvents: boolean
+  stateChangeEvents: boolean,
+  mouseEvents: null | string[],
 }]
 export type UpdateSrcMessage = ['df-parent', 'updateSrc', string]
-export type ParentMessage = InitParentMessage | UpdateSrcMessage
+export type ParentMessage = InitParentMessage | UpdateSrcMessage | MouseEventMessage
 
 export function isInitParentMessage (message: any[]): message is InitParentMessage {
   return message[0] === 'df-parent' && message[1] === 'init'
