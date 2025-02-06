@@ -1,4 +1,4 @@
-export type MouseEventMessage = ['df-global', 'mouse', 'click' | 'mousedown']
+export type MouseEventMessage = ['df-global', 'mouse', MouseEvent['type'], Pick<MouseEvent, 'altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey'>]
 
 export function isMouseEventMessage (message: any): message is MouseEventMessage {
   return message[0] === 'df-global' && message[1] === 'mouse'
@@ -46,7 +46,7 @@ export type InitParentMessage = ['df-parent', 'init', {
   syncParams: boolean,
   syncPath: boolean,
   stateChangeEvents: boolean,
-  syncMouseEvents: boolean,
+  mouseEvents: null | string[],
 }]
 export type UpdateSrcMessage = ['df-parent', 'updateSrc', string]
 export type ParentMessage = InitParentMessage | UpdateSrcMessage | MouseEventMessage

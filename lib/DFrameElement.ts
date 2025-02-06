@@ -101,10 +101,16 @@ export default class DFrameElement extends HTMLElement {
     else this.removeAttribute('ready-message')
   }
 
-  get syncMouseEvents () { return this.hasAttribute('sync-click') }
-  set syncMouseEvents (value) {
-    if (value) this.setAttribute('sync-click', '')
-    else this.removeAttribute('sync-click')
+  get mouseEvents () {
+    const attr = this.getAttribute('mouse-events')
+    if (attr === null) return null
+    if (attr === '') return ['click', 'dblclick', 'mousedown', 'mouseup']
+    return attr.split(',')
+  }
+
+  set mouseEvents (value) {
+    if (value === null) this.removeAttribute('mouse-events')
+    else this.setAttribute('mouse-events', value.join(','))
   }
 
   public adapter: StateChangeAdapter
@@ -187,7 +193,7 @@ export default class DFrameElement extends HTMLElement {
             syncParams: this.syncParams !== null,
             syncPath: this.syncPath !== null,
             stateChangeEvents: this.stateChangeEvents,
-            syncMouseEvents: this.syncMouseEvents
+            mouseEvents: this.mouseEvents
           }])
           this.init()
         }
@@ -329,28 +335,30 @@ export default class DFrameElement extends HTMLElement {
     }
   }
 
-  private currentSyncedMouseEvents: Set<'click' | 'mousedown'> = new Set()
+  private currentSyncedMouseEvents: Set<MouseEvent['type']> = new Set()
 
-  private initSyncMouseEvents () {
-    this.log('debug', 'initSyncMouseEvents')
-    document.addEventListener('click', (e) => this.transmitSyncedMouseEvent(['df-global', 'mouse', 'click']))
-    document.addEventListener('mousedown', (e) => this.transmitSyncedMouseEvent(['df-global', 'mouse', 'mousedown']))
+  private initMouseEvents (types: MouseEvent['type'][]) {
+    this.log('debug', 'initMouseEvents')
+    for (const eventType of types) {
+      document.addEventListener(eventType, (e) => {
+        if (!(e instanceof MouseEvent)) return
+        this.transmitSyncedMouseEvent(['df-global', 'mouse', eventType, { altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey }])
+      }, true)
+    }
   }
 
   private transmitSyncedMouseEvent (message: MouseEventMessage) {
     if (this.currentSyncedMouseEvents.has(message[2])) {
       this.currentSyncedMouseEvents.delete(message[2])
     } else {
-      this.log('debug', 'transmit mouse event', message[2])
       this.postMessageToChild(message)
     }
   }
 
   private applySyncedMouseEvent (message: MouseEventMessage) {
-    this.log('debug', 'received mouse event', message[2])
     this.currentSyncedMouseEvents.add(message[2])
-    const event = new MouseEvent(message[2])
-    document.dispatchEvent(event)
+    const event = new MouseEvent(message[2], { bubbles: true, cancelable: true, view: window, ...message[3] })
+    this.dispatchEvent(event)
   }
 
   log (level: 'debug' | 'info', ...args: any[]) {
@@ -379,7 +387,7 @@ export default class DFrameElement extends HTMLElement {
     this.updateStyle()
     this.updateIframeExtraAttrs()
     this.updateSrc()
-    if (this.syncMouseEvents) this.initSyncMouseEvents()
+    if (this.mouseEvents) this.initMouseEvents(this.mouseEvents)
   }
 
   disconnectedCallback () {

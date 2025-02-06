@@ -77,7 +77,7 @@ export default class DFrameContent {
         if (this.debug) console.time(`d-frame:${this.id}:content`)
         if (message[2].resize !== 'no') this.initResize()
         if (message[2].syncParams || message[2].syncPath || message[2].stateChangeEvents) this.initStateChangeWatcher()
-        if (message[2].syncMouseEvents) this.initSyncMouseEvents()
+        if (message[2].mouseEvents) this.initMouseEvents(message[2].mouseEvents)
         this.initialized = true
       }
       if (isUpdateSrcMessage(message)) {
@@ -107,28 +107,30 @@ export default class DFrameContent {
     this.postMessageToParent(['df-child', 'ready'])
   }
 
-  private currentSyncedMouseEvents: Set<'click' | 'mousedown'> = new Set()
+  private currentSyncedMouseEvents: Set<MouseEvent['type']> = new Set()
 
-  private initSyncMouseEvents () {
-    this.log('debug', 'initSyncMouseEvents')
-    document.addEventListener('click', (e) => this.transmitSyncedMouseEvent(['df-global', 'mouse', 'click']))
-    document.addEventListener('mousedown', (e) => this.transmitSyncedMouseEvent(['df-global', 'mouse', 'mousedown']))
+  private initMouseEvents (types: MouseEvent['type'][]) {
+    this.log('debug', 'initMouseEvents')
+    for (const eventType of types) {
+      document.addEventListener(eventType, (e) => {
+        if (!(e instanceof MouseEvent)) return
+        this.transmitSyncedMouseEvent(['df-global', 'mouse', eventType, { altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey }])
+      }, true)
+    }
   }
 
   private transmitSyncedMouseEvent (message: MouseEventMessage) {
     if (this.currentSyncedMouseEvents.has(message[2])) {
       this.currentSyncedMouseEvents.delete(message[2])
     } else {
-      this.log('debug', 'transmit mouse event', message[2])
       this.postMessageToParent(message)
     }
   }
 
   private applySyncedMouseEvent (message: MouseEventMessage) {
-    this.log('debug', 'received mouse event', message[2])
     this.currentSyncedMouseEvents.add(message[2])
-    const event = new MouseEvent(message[2])
-    document.dispatchEvent(event)
+    const event = new MouseEvent(message[2], { bubbles: true, cancelable: true, view: window, ...message[3] })
+    document.body.dispatchEvent(event)
   }
 
   private initResize () {
