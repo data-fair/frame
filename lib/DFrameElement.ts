@@ -46,6 +46,7 @@ export default class DFrameElement extends HTMLElement {
 
   get src () { return this.getAttribute('src') as string }
   set src (value) { this.setAttribute('src', value) }
+  get fullSrc () { return this.src.startsWith('/') ? (window.location.origin + this.src) : this.src }
 
   get aspectRatio () {
     const value = this.getAttribute('aspect-ratio')
@@ -118,7 +119,6 @@ export default class DFrameElement extends HTMLElement {
   /* internal state */
   private connected: boolean = false
   private initialSrc: string | undefined
-  private srcUrl: URL | undefined
   private parsedSyncParams: ParsedSyncParams | undefined
   private wrapperElement: HTMLDivElement
   private slotElement: HTMLSlotElement
@@ -207,7 +207,7 @@ export default class DFrameElement extends HTMLElement {
         }
         if (isStateChangeMessage(message)) {
           if ((this.parsedSyncParams || this.syncPath)) {
-            const newParentHUrl = getParentUrl(this.srcUrl, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
+            const newParentHUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
             if (newParentHUrl.href !== window.location.href) {
               this.adapter.stateChange(message[2], newParentHUrl)
             }
@@ -246,13 +246,12 @@ export default class DFrameElement extends HTMLElement {
 
   updateSrc () {
     if (!this.connected) return
-    this.srcUrl = new URL(this.src.startsWith('/') ? (window.location.origin + this.src) : this.src)
-    const fullSrc = getChildSrc(this.srcUrl, window.location.href, this.parsedSyncParams, this.syncPath)
+    const iframeSrc = getChildSrc(this.fullSrc, window.location.href, this.parsedSyncParams, this.syncPath)
     if (this.initialSrc) {
-      this.postMessageToChild(['df-parent', 'updateSrc', fullSrc])
+      this.postMessageToChild(['df-parent', 'updateSrc', iframeSrc])
     } else {
-      this.log('debug', 'set src attribute of iframe: ' + fullSrc)
-      this.iframeElement.setAttribute('src', fullSrc)
+      this.log('debug', 'set src attribute of iframe: ' + iframeSrc)
+      this.iframeElement.setAttribute('src', iframeSrc)
     }
   }
 

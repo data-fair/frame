@@ -20,8 +20,9 @@ export function parseSyncParams (syncParamsStr: string) {
   return syncParams
 }
 
-export function getChildSrc (srcUrl: URL, parentHref: string, syncParams: ParsedSyncParams | undefined, syncPath: null | string) {
-  if (!syncParams && !syncPath) return srcUrl.href
+export function getChildSrc (fullSrc: string, parentHref: string, syncParams: ParsedSyncParams | undefined, syncPath: null | string) {
+  if (!syncParams && !syncPath) return fullSrc
+  const childUrl = new URL(fullSrc)
   const parentUrl = new URL(parentHref)
   if (syncParams) {
     parentUrl.searchParams.forEach((value, key) => {
@@ -30,7 +31,7 @@ export function getChildSrc (srcUrl: URL, parentHref: string, syncParams: Parsed
         if (key === syncPath) continue
         const childKey = syncParam.append ? key.replace(syncParam.append, '') : key
         if (!childKey.match(syncParam.regexp)) continue
-        srcUrl.searchParams.set(childKey, value)
+        childUrl.searchParams.set(childKey, value)
         break
       }
     })
@@ -38,19 +39,20 @@ export function getChildSrc (srcUrl: URL, parentHref: string, syncParams: Parsed
   if (syncPath !== null) {
     const path = parentUrl.searchParams.get(syncPath)
     if (path) {
-      srcUrl.pathname = new URL(path, srcUrl).pathname
+      childUrl.pathname = new URL(path, fullSrc).pathname
     }
   }
 
-  return srcUrl.href
+  return childUrl.href
 }
 
-export function getParentUrl (srcUrl: URL | undefined, childHref: string, currentParentHref: string, syncParams: ParsedSyncParams | undefined, syncPath: null | string) {
+export function getParentUrl (fullSrc: string, childHref: string, currentParentHref: string, syncParams: ParsedSyncParams | undefined, syncPath: null | string) {
+  const srcUrl = new URL(fullSrc)
   const parentUrl = new URL(currentParentHref)
   const childUrl = new URL(childHref)
 
   if (syncParams) {
-  // remove existing keys that were deleted from the child
+    // remove existing keys that were deleted from the child
     parentUrl.searchParams.forEach((value, key) => {
       for (const syncParam of syncParams) {
         if (syncParam.append && !key.startsWith(syncParam.append)) continue
