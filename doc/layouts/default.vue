@@ -106,59 +106,52 @@
       </v-list>
 
       <template #append>
-        <v-footer color="transparent">
-          <v-spacer />
+        <v-row class="ma-0 px-4 pb-2">
           <span class="text-caption">Maintained by&nbsp;<a
             href="https://koumoul.com"
             class="text-white text-decoration-none font-weight-bold"
           >Koumoul</a></span>
-        </v-footer>
+        </v-row>
+        <v-row class="ma-0 px-4 pb-4">
+          <v-btn
+            href="https://github.com/sponsors/koumoul-dev"
+            rounded="pill"
+            color="surface"
+            variant="flat"
+            style="text-transform: none;"
+            class="font-weight-bold"
+          >
+            <template #prepend>
+              <v-icon
+                color="pink-accent-3"
+                size="large"
+                :icon="mdiHeart"
+              />
+            </template>
+            Sponsor
+          </v-btn>
+          <v-spacer />
+          <v-btn
+            :icon="mdiGithub"
+            href="https://github.com/data-fair/frame"
+            color="primary"
+            variant="flat"
+            title="repository on github"
+            size="lg"
+          />
+        </v-row>
       </template>
     </v-navigation-drawer>
-    <!-- <v-app-bar app :color="$vuetify.display.smAndDown ? 'white' : 'transparent'" dense flat> -->
     <v-app-bar
+      v-if="temporary"
       app
+      density="compact"
+      collapse
       scroll-behavior="elevate"
+      style="max-width: 50px;"
     >
       <v-app-bar-nav-icon
-        v-if="temporary"
         @click.stop="drawer = !drawer"
-      />
-      <v-spacer />
-      <v-btn
-        href="https://github.com/sponsors/koumoul-dev"
-        variant="outlined"
-        rounded="pill"
-        color="primary"
-        style="text-transform: none;"
-        class="mx-2 font-weight-bold elevation-4"
-      >
-        <template #prepend>
-          <v-icon
-            color="pink-accent-3"
-            size="large"
-            :icon="mdiHeart"
-          />
-        </template>
-        Sponsor
-      </v-btn>
-      <!-- <v-btn
-        fab
-        small
-        href="https://gitter.im/koumoul-dev/vjsf"
-        color="primary"
-        class="ml-2"
-        title="chat on gitter"
-      >
-        <v-icon>mdi-chat</v-icon>
-      </v-btn> -->
-      <v-btn
-        :icon="mdiGithub"
-        href="https://github.com/data-fair/frame"
-        color="black"
-        size="x-large"
-        density="compact"
-        title="repository on github"
       />
     </v-app-bar>
     <v-main>
