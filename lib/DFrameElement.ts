@@ -6,13 +6,22 @@ import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-no
 
 export interface StateChangeAdapter {
   stateChange (action: 'push' | 'replace', newUrl: URL): void,
-  onStateChange? (callback: () => void): void
+  onStateChange (callback: () => void): void
 }
 
 class WindowStateChangeAdapter implements StateChangeAdapter {
   stateChange (action: 'push' | 'replace', newUrl: URL): void {
     if (action === 'replace') window.history.replaceState(null, '', newUrl)
     if (action === 'push') window.history.pushState(null, '', newUrl)
+  }
+
+  onStateChange (callback: () => void): void {
+    // this is only partial, for a full implementation we would have to monkeypatch window.history
+    // I chose to do it in the child but not here
+    // therefore support of dynamic changes performed through the history api requires an adapter
+    // the idea being that the child makes itself wholly compatible with d-frame and changes its navigation logic to fit it
+    // but the parent should be left as untouched as possible and uses d-frame as a black box (custom element)
+    window.addEventListener('popstate', callback)
   }
 }
 
