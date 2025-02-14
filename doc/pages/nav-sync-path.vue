@@ -17,6 +17,8 @@
           style="max-width:300px;"
           resize
           sync-path="path1"
+          debug
+          .adapter="stateChangeAdapter"
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
         />
       </v-col>
@@ -35,4 +37,7 @@
 
 <script setup lang="ts">
 import '../components/d-frame-redefine'
+import createStateChangeAdapter from '../../lib/vue-router/state-change-adapter'
+
+const stateChangeAdapter = createStateChangeAdapter(useRouter())
 </script>

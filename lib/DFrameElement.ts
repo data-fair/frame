@@ -253,9 +253,12 @@ export default class DFrameElement extends HTMLElement {
     this.iframeElement?.contentWindow?.postMessage(message)
   }
 
+  private lastUpdateSrc: string | null = null
   updateSrc () {
     if (!this.connected) return
     const iframeSrc = getChildSrc(this.fullSrc, window.location.href, this.parsedSyncParams, this.syncPath)
+    if (iframeSrc === this.lastUpdateSrc) return
+    this.lastUpdateSrc = iframeSrc
     if (this.initialSrc) {
       this.postMessageToChild(['df-parent', 'updateSrc', iframeSrc])
     } else {
