@@ -81,8 +81,10 @@ export default class DFrameContent {
         this.initialized = true
       }
       if (isUpdateSrcMessage(message)) {
+        const newSrc = message[2].startsWith('/') ? window.location.origin + message[2] : message[2]
+        if (newSrc === window.location.href) return
         if (this.options.updateSrc) {
-          this.options.updateSrc(message[2].startsWith('/') ? window.location.origin + message[2] : message[2], this)
+          this.options.updateSrc(newSrc, this)
         } else {
           window.location.href = message[2]
         }
