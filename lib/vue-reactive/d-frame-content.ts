@@ -4,8 +4,11 @@ import { applySearchParams } from './util.js'
 
 type VueReactiveDFrameContentOptions = Omit<DFrameContentOptions, 'updateSrc'>
 
+let dFrameContent: DFrameContent | null = null
+
 export function VueReactiveDFrameContent (reactiveParams: Reactive<Record<string, string>>, options?: VueReactiveDFrameContentOptions) {
-  return new DFrameContent({
+  if (dFrameContent) return dFrameContent
+  dFrameContent = new DFrameContent({
     ...options,
     updateSrc: (src: string) => {
       const srcUrl = new URL(src)
@@ -16,5 +19,6 @@ export function VueReactiveDFrameContent (reactiveParams: Reactive<Record<string
       }
     }
   })
+  return dFrameContent
 }
 export default VueReactiveDFrameContent

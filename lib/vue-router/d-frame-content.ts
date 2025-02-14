@@ -3,8 +3,11 @@ import type { Router } from 'vue-router'
 
 type VueRouterDFrameContentOptions = Omit<DFrameContentOptions, 'updateSrc'>
 
+let dFrameContent: DFrameContent | null = null
+
 export function vueRouterDFrameContent (router: Router, options?: VueRouterDFrameContentOptions) {
-  return new DFrameContent({
+  if (dFrameContent) return dFrameContent
+  dFrameContent = new DFrameContent({
     ...options,
     updateSrc: (src: string, instance: DFrameContent) => {
       // @ts-ignore vue-router v2
@@ -23,10 +26,10 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
           return
         }
       }
-
       instance.log('info', 'falling back to updating window.location.href', src)
       window.location.href = src
     }
   })
+  return dFrameContent
 }
 export default vueRouterDFrameContent
