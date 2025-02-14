@@ -145,17 +145,24 @@ export default class DFrameContent {
     // monkey patch pushState and replaceState to send all state change info to the parent window
     // this is to compensate the lack of event emission by window.history
     const oldReplaceState = window.history.replaceState
+
     const newPushState: typeof window.history.pushState = (...args) => {
+      const before = window.location.href
       // do a replace instead of a push, the push will be done in the parent window if sync-state is activated
       const ret = oldReplaceState.apply(window.history, args)
-      this.postMessageToParent(['df-child', 'stateChange', 'push', window.location.href])
+      if (window.location.href !== before) {
+        this.postMessageToParent(['df-child', 'stateChange', 'push', window.location.href])
+      }
       return ret
     }
     window.history.pushState = newPushState
 
     const newReplaceState: typeof window.history.replaceState = (...args) => {
+      const before = window.location.href
       const ret = oldReplaceState.apply(window.history, args)
-      this.postMessageToParent(['df-child', 'stateChange', 'replace', window.location.href])
+      if (window.location.href !== before) {
+        this.postMessageToParent(['df-child', 'stateChange', 'replace', window.location.href])
+      }
       return ret
     }
     window.history.replaceState = newReplaceState

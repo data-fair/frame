@@ -11,8 +11,8 @@ export interface StateChangeAdapter {
 
 class WindowStateChangeAdapter implements StateChangeAdapter {
   stateChange (action: 'push' | 'replace', newUrl: URL): void {
-    if (action === 'replace') window.history.replaceState(null, '', newUrl)
-    if (action === 'push') window.history.pushState(null, '', newUrl)
+    if (action === 'replace') window.history.replaceState(window.history.state, '', newUrl)
+    if (action === 'push') window.history.pushState(window.history.state, '', newUrl)
   }
 
   onStateChange (callback: () => void): void {
@@ -127,7 +127,8 @@ export default class DFrameElement extends HTMLElement {
 
   /* internal state */
   private connected: boolean = false
-  private initialSrc: string | undefined
+  private childInitialized: boolean = false
+  private currentChildSrc: string | null = null
   private parsedSyncParams: ParsedSyncParams | undefined
   private wrapperElement: HTMLDivElement
   private slotElement: HTMLSlotElement
@@ -204,7 +205,7 @@ export default class DFrameElement extends HTMLElement {
             stateChangeEvents: this.stateChangeEvents,
             mouseEvents: this.mouseEvents
           }])
-          this.init()
+          this.childInitialized = true
         }
         if (isHeightMessage(message)) {
           this.resizedHeight = message[2]
@@ -215,9 +216,11 @@ export default class DFrameElement extends HTMLElement {
           this.updateStyle()
         }
         if (isStateChangeMessage(message)) {
+          this.currentChildSrc = message[3]
           if ((this.parsedSyncParams || this.syncPath)) {
             const newParentHUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
             if (newParentHUrl.href !== window.location.href) {
+              console.log('parent push stateChange', message[2], message[3])
               this.adapter.stateChange(message[2], newParentHUrl)
             }
           } if (this.stateChangeEvents) {
@@ -243,23 +246,17 @@ export default class DFrameElement extends HTMLElement {
     }
   }
 
-  init () {
-    // called after initial handshake with child
-    this.initialSrc = this.src
-  }
-
   postMessageToChild (message: ParentMessage) {
     this.log('debug', 'send message to child', message)
     this.iframeElement?.contentWindow?.postMessage(message)
   }
 
-  private lastUpdateSrc: string | null = null
   updateSrc () {
     if (!this.connected) return
     const iframeSrc = getChildSrc(this.fullSrc, window.location.href, this.parsedSyncParams, this.syncPath)
-    if (iframeSrc === this.lastUpdateSrc) return
-    this.lastUpdateSrc = iframeSrc
-    if (this.initialSrc) {
+    if (iframeSrc === this.currentChildSrc) return
+    this.currentChildSrc = iframeSrc
+    if (this.childInitialized) {
       this.postMessageToChild(['df-parent', 'updateSrc', iframeSrc])
     } else {
       this.log('debug', 'set src attribute of iframe: ' + iframeSrc)

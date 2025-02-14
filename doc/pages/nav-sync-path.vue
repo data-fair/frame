@@ -28,6 +28,7 @@
           style="max-width:300px;"
           resize
           sync-path="path2"
+          .adapter="stateChangeAdapter"
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
         />
       </v-col>
