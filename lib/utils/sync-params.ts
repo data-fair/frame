@@ -53,7 +53,8 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
 
   if (syncParams) {
     // remove existing keys that were deleted from the child
-    parentUrl.searchParams.forEach((value, key) => {
+    // use toArray instead of iterator as we mutate parentUrl in the loop
+    for (const key of parentUrl.searchParams.keys().toArray()) {
       for (const syncParam of syncParams) {
         if (syncParam.append && !key.startsWith(syncParam.append)) continue
         const childKey = syncParam.append ? key.replace(syncParam.append, '') : key
@@ -61,7 +62,7 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
         if (childUrl.searchParams.get(childKey) === null) parentUrl.searchParams.delete(key)
         break
       }
-    })
+    }
 
     // apply params from child to parent
     childUrl.searchParams.forEach((value, key) => {

@@ -45,6 +45,13 @@ describe('sync-params utility functions', () => {
     )
   })
 
+  it('should remove params from child to parent', () => {
+    assert.equal(
+      getParentHrefShort('/child', '/child', '/parent?param0=0&param1=1', '*'),
+      'http://te.st/parent'
+    )
+  })
+
   it('should reflect path from child to parent', () => {
     assert.equal(
       getParentHrefShort('/child?param0=0', '/child2?param0=0&param1=1', '/parent', '*', 'p'),

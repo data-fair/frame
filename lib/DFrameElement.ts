@@ -220,7 +220,7 @@ export default class DFrameElement extends HTMLElement {
           if ((this.parsedSyncParams || this.syncPath)) {
             const newParentHUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
             if (newParentHUrl.href !== window.location.href) {
-              console.log('parent push stateChange', message[2], message[3])
+              this.log('debug', 'apply state change to parent', message[2], newParentHUrl)
               this.adapter.stateChange(message[2], newParentHUrl)
             }
           } if (this.stateChangeEvents) {
