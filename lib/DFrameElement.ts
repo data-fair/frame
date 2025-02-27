@@ -123,6 +123,9 @@ export default class DFrameElement extends HTMLElement {
     else this.setAttribute('mouse-events', value.join(','))
   }
 
+  get reload () { return this.getAttribute('reload') as string }
+  set reload (value) { this.setAttribute('reload', value) }
+
   public adapter: StateChangeAdapter
 
   /* internal state */
@@ -405,15 +408,29 @@ export default class DFrameElement extends HTMLElement {
   }
 
   /* reflected attributes */
-  static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params', 'sync-path'] }
+  static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params', 'sync-path', 'reload'] }
   attributeChangedCallback (name: string, oldValue: any, newValue: any) {
     if (name === 'aspect-ratio') this.updateAspectRatioHeight()
-    if (name.startsWith('iframe-')) this.updateIframeExtraAttrs()
+    // if (name.startsWith('iframe-')) this.updateIframeExtraAttrs()
     if (!this.connected) return
     this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'src') this.updateSrc()
     if (name === 'height') this.updateStyle()
     if (name === 'sync-params') this.updateSrc()
     if (name === 'sync-path') this.updateSrc()
+    if (name === 'reload') {
+      if (!this.currentChildSrc) {
+        this.log('debug', 'reload attribute changed but no iframe previously src')
+        return
+      }
+      if (!this.iframeElement.contentWindow?.location) {
+        this.log('debug', 'reload attribute changed but no iframe contentWindow, is this a cross domain iframe ?')
+        return
+      }
+      this.log('debug', 'reload iframe with current src', this.currentChildSrc)
+      this.childInitialized = false
+      this.iframeElement.setAttribute('src', this.currentChildSrc)
+      this.iframeElement.contentWindow.location.reload()
+    }
   }
 }

@@ -98,6 +98,11 @@
             Extra attributes
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/force-reload">
+          <v-list-item-title>
+            Force reload
+          </v-list-item-title>
+        </v-list-item>
         <v-list-item to="/v-iframe-compat">
           <v-list-item-title>
             V-Iframe compatibility
