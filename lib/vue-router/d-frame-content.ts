@@ -11,7 +11,7 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
     ...options,
     updateSrc: (src: string, instance: DFrameContent) => {
       // @ts-ignore vue-router v2
-      const base = router.options?.base ?? router.options.history?.base
+      const base = router.options?.base ?? router.options.history?.base as string | undefined
       if (base === null || base === undefined) {
         instance.log('error', 'failed to access base path in router (no router.options.base nor router.options.history.base)', router)
       } else {

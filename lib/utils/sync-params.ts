@@ -37,7 +37,16 @@ export function getChildSrc (fullSrc: string, parentHref: string, syncParams: Pa
     })
   }
   if (syncPath !== null) {
-    const path = parentUrl.searchParams.get(syncPath)
+    let path
+    if (syncPath === '#') {
+      path = parentUrl.hash.slice(1)
+    } else if (syncPath.startsWith('/')) {
+      if (parentUrl.pathname.startsWith(syncPath)) {
+        path = getUrlRelativePath(new URL(syncPath, parentHref), parentUrl)
+      }
+    } else {
+      path = parentUrl.searchParams.get(syncPath)
+    }
     if (path) {
       childUrl.pathname = new URL(path, fullSrc).pathname
     }
@@ -78,8 +87,14 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
 
   if (syncPath !== null && srcUrl) {
     const path = getUrlRelativePath(srcUrl, childUrl)
-    if (path) parentUrl.searchParams.set(syncPath, path)
-    else parentUrl.searchParams.delete(syncPath)
+    if (syncPath === '#') {
+      parentUrl.hash = path
+    } else if (syncPath.startsWith('/')) {
+      parentUrl.pathname = new URL(path, new URL(syncPath, currentParentHref)).pathname
+    } else {
+      if (path) parentUrl.searchParams.set(syncPath, path)
+      else parentUrl.searchParams.delete(syncPath)
+    }
   }
 
   return parentUrl

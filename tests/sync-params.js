@@ -4,7 +4,12 @@ import { getChildSrc, getParentUrl, parseSyncParams } from '../lib/utils/sync-pa
 
 const getChildSrcShort = (src, parentSearch, syncParams, syncPath) => {
   const parentUrl = new URL('http://te.st')
-  parentUrl.search = parentSearch
+  if (parentSearch.startsWith('#') || parentSearch.startsWith('?') || parentSearch.startsWith('/')) {
+    if (parentSearch.startsWith('/')) parentSearch = parentSearch.slice(1)
+    parentUrl.href += parentSearch
+  } else {
+    parentUrl.search += parentSearch
+  }
   const srcUrl = new URL('http://te.st' + src)
   return getChildSrc(srcUrl, parentUrl.href, parseSyncParams(syncParams), syncPath ?? null)
 }
@@ -38,6 +43,27 @@ describe('sync-params utility functions', () => {
     )
   })
 
+  it('should apply path in hash from parent to child', () => {
+    assert.equal(
+      getChildSrcShort('/child1', '?param0=0#./child2', '*', '#'),
+      'http://te.st/child2?param0=0'
+    )
+  })
+
+  it('should apply path in path from parent to child', () => {
+    assert.equal(
+      getChildSrcShort('/children/', '/base/child2?param0=0', '*', '/base/'),
+      'http://te.st/children/child2?param0=0'
+    )
+  })
+
+  it.only('should apply path in path from parent to child', () => {
+    assert.equal(
+      getChildSrcShort('/children/', '/base?param0=0', '*', '/base/'),
+      'http://te.st/children/?param0=0'
+    )
+  })
+
   it('should reflect params from child to parent', () => {
     assert.equal(
       getParentHrefShort('/child?param0=0', '/child?param0=0&param1=1', '/parent', '*'),
@@ -52,7 +78,7 @@ describe('sync-params utility functions', () => {
     )
   })
 
-  it('should reflect path from child to parent', () => {
+  it('should reflect path from child to parent in query param', () => {
     assert.equal(
       getParentHrefShort('/child?param0=0', '/child2?param0=0&param1=1', '/parent', '*', 'p'),
       'http://te.st/parent?param1=1&p=.%2Fchild2'
@@ -63,6 +89,20 @@ describe('sync-params utility functions', () => {
     assert.equal(
       getParentHrefShort('/child', '/child?param1=1', '/parent', '*', 'p'),
       'http://te.st/parent?param1=1'
+    )
+  })
+
+  it('should reflect path from child to parent in hash', () => {
+    assert.equal(
+      getParentHrefShort('/child', '/child2', '/parent', '*', '#'),
+      'http://te.st/parent#./child2'
+    )
+  })
+
+  it('should reflect path from child to parent in path', () => {
+    assert.equal(
+      getParentHrefShort('/child', '/child2', '/parent', '*', '/base/'),
+      'http://te.st/base/child2'
     )
   })
 })

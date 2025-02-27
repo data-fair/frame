@@ -127,6 +127,7 @@ export default class DFrameElement extends HTMLElement {
   set reload (value) { this.setAttribute('reload', value) }
 
   public adapter: StateChangeAdapter
+  public windowAdapter: StateChangeAdapter
 
   /* internal state */
   private connected: boolean = false
@@ -187,7 +188,7 @@ export default class DFrameElement extends HTMLElement {
     })
     resizeObserver.observe(this)
 
-    this.adapter = new WindowStateChangeAdapter()
+    this.adapter = this.windowAdapter = new WindowStateChangeAdapter()
 
     window.addEventListener('message', (e) => this.onMessage(e))
   }
@@ -223,8 +224,13 @@ export default class DFrameElement extends HTMLElement {
           if ((this.parsedSyncParams || this.syncPath)) {
             const newParentHUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
             if (newParentHUrl.href !== window.location.href) {
-              this.log('debug', 'apply state change to parent', message[2], newParentHUrl)
-              this.adapter.stateChange(message[2], newParentHUrl)
+              this.log('debug', 'apply state change to parent', message[2], newParentHUrl.href)
+              try {
+                this.adapter.stateChange(message[2], newParentHUrl)
+              } catch (err) {
+                this.log('error', 'failed to apply state change to parent using custom adapter', err)
+                this.windowAdapter.stateChange(message[2], newParentHUrl)
+              }
             }
           } if (this.stateChangeEvents) {
             this.dispatchEvent(new CustomEvent('state-change', { detail: [message[2], message[3]] }))
@@ -372,10 +378,11 @@ export default class DFrameElement extends HTMLElement {
     this.dispatchEvent(event)
   }
 
-  log (level: 'debug' | 'info', ...args: any[]) {
+  log (level: 'debug' | 'info' | 'error', ...args: any[]) {
     if (level === 'debug' && !this.debug) return
     if (level === 'debug') console.timeLog(`d-frame:${this.id}`, ...args)
     if (level === 'info') console.info(`d-frame:${this.id}`, ...args)
+    if (level === 'error') console.error(`d-frame:${this.id}`, ...args)
   }
 
   /* standard custom element callbacks */
