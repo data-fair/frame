@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Dynamic height
+      <br>
+      <source-link />
     </h1>
     <v-alert
       color="text-info"
@@ -34,7 +36,7 @@
       Adding an offset on a tagged element
     </h2>
     <p class="my-4">
-      In this example the button at the bottom of the frame has a <code>data-iframe-height="30"</code> attribute.
+      In this example the button at the bottom of the frame has a <code>data-iframe-height="60"</code> attribute.
     </p>
     <d-frame
       id="dynamic-height-offset"

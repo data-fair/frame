@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Force reload
+      <br>
+      <source-link />
     </h1>
     <p class="mb-4">
       If you want to force the frame to reload, you can use the <code>reload</code> attribute. This will reload the frame every time the value is changed.

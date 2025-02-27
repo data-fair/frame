@@ -13,6 +13,8 @@
     >
       Go to parent
     </v-btn>
+    <br>
+    <source-link class="mt-4" />
   </div>
 </template>
 

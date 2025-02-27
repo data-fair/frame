@@ -41,6 +41,8 @@
     >
       Clear 2
     </v-btn>
+    <br>
+    <source-link class="mt-4" />
   </div>
 </template>
 

@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Navigation syncing with prefix
+      <br>
+      <source-link />
     </h1>
 
     <p class="my-4">

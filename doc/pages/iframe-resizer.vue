@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Iframe resizer example
+      <br>
+      <source-link />
     </h1>
     <p>Used for comparison and reverse-engineering.</p>
 

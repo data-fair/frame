@@ -2,7 +2,10 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Navigation syncing with path
+      <br>
+      <source-link />
     </h1>
+
     <p>
       If the navigation inside the frame includes path changes and you want to reflect this in the parent URL too, you can use the <code>sync-path</code> attribute.
     </p>

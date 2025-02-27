@@ -8,10 +8,12 @@
       <br>
       <v-alert
         v-if="showDelayedContent"
-        data-iframe-height="17"
+        data-iframe-height="60"
       >
         delayed content
       </v-alert>
+      <br>
+      <source-link />
     </v-card-text>
   </v-card>
 </template>

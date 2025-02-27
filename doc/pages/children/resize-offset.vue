@@ -10,11 +10,13 @@
         color="primary"
         variant="elevated"
         class="mt-4"
-        data-iframe-height="30"
+        data-iframe-height="60"
         @click="height += 50"
       >
         Add 50px
       </v-btn>
+      <br>
+      <source-link class="mt-4" />
     </v-card-text>
   </v-card>
 </template>

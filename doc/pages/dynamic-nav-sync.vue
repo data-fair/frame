@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Dynamic navigation syncing
+      <br>
+      <source-link />
     </h1>
     <v-alert
       color="text-info"

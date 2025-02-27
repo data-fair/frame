@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Messages
+      <br>
+      <source-link />
     </h1>
     <p>
       You can send simple notifications and custom messages through d-frame. In this case d-gframe acts as a simple wrapper around the postMessage API exposed as custom events on the d-frame element.

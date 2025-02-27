@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Navigation syncing
+      <br>
+      <source-link />
     </h1>
     <p>
       Navigation inside an iframe is usually lost when reloading the parent page. With <code>d-frame</code> it is easy to reflect the navigation in the iframe as a navigation on the parent page.

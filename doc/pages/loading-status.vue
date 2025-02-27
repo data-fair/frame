@@ -3,6 +3,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Loading status
+      <br>
+      <source-link />
     </h1>
     <p>
       The <code>d-frame</code> element provides a few possibilities to manage the initial loading status of the content.
@@ -37,7 +39,7 @@
           v-if="drawn[0].value"
           id="d-frame-ready1"
           :src="`${$config.app.baseURL}children/delayed-ready`"
-          style="max-width:300px;height:100px;"
+          style="max-width:300px;height:130px;"
           ready-message
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
           @ready="ready[0].value = true"
@@ -66,7 +68,7 @@
           v-if="drawn[0].value"
           id="d-frame-ready2"
           :src="`${$config.app.baseURL}children/basic`"
-          style="max-width:300px;height:100px;"
+          style="max-width:300px;height:130px;"
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
           @ready="ready[2].value = true"
         />
@@ -96,7 +98,7 @@
           v-if="drawn[1].value"
           id="d-frame-ready1"
           :src="`${$config.app.baseURL}children/delayed-ready`"
-          style="max-width:300px;height:100px;"
+          style="max-width:300px;height:130px;"
           ready-message
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
           @ready="ready[0].value = true"
@@ -126,7 +128,7 @@
           v-if="drawn[1].value"
           id="d-frame-ready2"
           :src="`${$config.app.baseURL}children/basic`"
-          style="max-width:300px;height:100px;"
+          style="max-width:300px;height:130px;"
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
           @ready="ready[2].value = true"
         >

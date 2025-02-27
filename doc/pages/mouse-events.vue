@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Mouse events
+      <br>
+      <source-link />
     </h1>
     <p>
       User actions across iframes can lack some interaction support.

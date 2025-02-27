@@ -1,16 +1,9 @@
 <template>
   <v-card class="h-100">
-    <v-card-text class="text-caption">
+    <v-card-text class="text-caption py-1">
       <click-outside-button />
-      <!--
-      <v-row dense>
-        <v-col>
-          <simple-menu />
-        </v-col>
-        <v-col>
-          <simple-menu />
-        </v-col>
-      </v-row> -->
+      <br>
+      <source-link />
     </v-card-text>
   </v-card>
 </template>

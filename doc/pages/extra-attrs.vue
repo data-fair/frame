@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Extra attributes
+      <br>
+      <source-link />
     </h1>
     <p>You can add extra attributes to the <code>iframe</code> element created by d-frame. To do so simply set the attribute with a "iframe-" prefix. This is useful to define accessibility related attributes for example.</p>
 

@@ -32,6 +32,8 @@
       >
         Send error notif
       </v-btn>
+      <br>
+      <source-link class="mt-4" />
     </v-card-text>
   </v-card>
 </template>

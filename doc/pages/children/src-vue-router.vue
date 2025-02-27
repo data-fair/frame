@@ -4,6 +4,8 @@
     class="text-caption"
   >
     This is a frame with a parameter from Vue Router. Param={{ $route.query.param }}.
+    <br>
+    <source-link class="mt-4" />
   </div>
 </template>
 

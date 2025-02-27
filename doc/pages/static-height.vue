@@ -2,6 +2,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Static height
+      <br>
+      <source-link />
     </h1>
     <p>There are multiple ways of managing the height of the frame.</p>
 
@@ -22,7 +24,7 @@
     />
 
     <p class="my-4">
-      The following example has a class that sets the rules <code>{height: 100px; width: 200px;}</code>.
+      The following example has a class that sets the rules <code>{height: 150px; width: 200px;}</code>.
     </p>
 
     <d-frame
@@ -122,7 +124,7 @@ const width2 = ref(600)
   width: 50%;
 }
 .d-frame-css2 {
-  height: 100px;
+  height: 150px;
   width: 200px;
 }
 </style>

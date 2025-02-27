@@ -3,6 +3,8 @@
   <v-container>
     <h1 class="text-h3 mb-6">
       Managing the clipping effect
+      <br>
+      <source-link />
     </h1>
     <p>
       When using dynamic resizing of the frame some degree of clipping effect is to be expected. Some strategies can be applied to mitigate this.
