@@ -38,14 +38,14 @@ describe('sync-params utility functions', () => {
 
   it('should apply path from parent to child', () => {
     assert.equal(
-      getChildSrcShort('/child1', 'param0=0&p=.%2Fchild2', '*', 'p'),
+      getChildSrcShort('/child1', 'param0=0&p=child2', '*', 'p'),
       'http://te.st/child2?param0=0'
     )
   })
 
   it('should apply path in hash from parent to child', () => {
     assert.equal(
-      getChildSrcShort('/child1', '?param0=0#./child2', '*', '#'),
+      getChildSrcShort('/child1', '?param0=0#child2', '*', '#'),
       'http://te.st/child2?param0=0'
     )
   })
@@ -81,7 +81,7 @@ describe('sync-params utility functions', () => {
   it('should reflect path from child to parent in query param', () => {
     assert.equal(
       getParentHrefShort('/child?param0=0', '/child2?param0=0&param1=1', '/parent', '*', 'p'),
-      'http://te.st/parent?param1=1&p=.%2Fchild2'
+      'http://te.st/parent?param1=1&p=child2'
     )
   })
 
@@ -95,7 +95,7 @@ describe('sync-params utility functions', () => {
   it('should reflect path from child to parent in hash', () => {
     assert.equal(
       getParentHrefShort('/child', '/child2', '/parent', '*', '#'),
-      'http://te.st/parent#./child2'
+      'http://te.st/parent#child2'
     )
   })
 
@@ -103,6 +103,20 @@ describe('sync-params utility functions', () => {
     assert.equal(
       getParentHrefShort('/child', '/child2', '/parent', '*', '/base/'),
       'http://te.st/base/child2'
+    )
+  })
+
+  it('should reflect path from child (in a directory) to parent in path', () => {
+    assert.equal(
+      getParentHrefShort('/dir/', '/dir/child2', '/parent', '*', '/base/'),
+      'http://te.st/base/child2'
+    )
+  })
+
+  it.only('should reflect path from child (in a directory without trailing /) to parent in path', () => {
+    assert.equal(
+      getParentHrefShort('/dir/', '/dir', '/parent', '*', '/base/'),
+      'http://te.st/base/'
     )
   })
 })

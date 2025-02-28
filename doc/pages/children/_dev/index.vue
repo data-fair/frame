@@ -4,6 +4,15 @@
     class="text-caption"
   >
     {{ route.fullPath }}
+    <v-btn
+      color="primary"
+      variant="elevated"
+      class="ml-2"
+      to="/children/_dev/child"
+    >
+      Go to child
+    </v-btn>
+    <br>
     <br>
     Push:
     <v-btn
@@ -39,11 +48,13 @@
     >
       Clear
     </v-btn>
+    <br>
+    <source-link />
   </div>
 </template>
 
 <script setup lang="ts">
-import dFrameContentVueRouter from '../../../lib/vue-router/d-frame-content'
+import dFrameContentVueRouter from '../../../../lib/vue-router/d-frame-content'
 
 const router = useRouter()
 const route = useRoute()
@@ -52,6 +63,7 @@ const route = useRoute()
 router.replace({ query: { param: 10 } })
 
 dFrameContentVueRouter(router)
+dFrameContentVueRouter(router) // should be ignored
 
 const push = (param: number | undefined) => {
   // do not preserve the input parameter "static" to trigger a secondary replace after each change

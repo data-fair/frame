@@ -21,8 +21,8 @@ describe('getPathDirectory utility functions', () => {
 
 describe('getUrlRelativePath utility function', () => {
   it('should return a relative path when the base directory it the same', () => {
-    assert.equal(getUrlRelativePathShort('http://te.st/test/', 'http://te.st/test/test'), './test')
-    assert.equal(getUrlRelativePathShort('http://te.st/test/test1', 'http://te.st/test/test2'), './test2')
+    assert.equal(getUrlRelativePathShort('http://te.st/test/', 'http://te.st/test/test'), 'test')
+    assert.equal(getUrlRelativePathShort('http://te.st/test/test1', 'http://te.st/test/test2'), 'test2')
   })
   it('should return a full path when the origin is the same but not base directory', () => {
     assert.equal(getUrlRelativePathShort('http://te.st/test1/test', 'http://te.st/test2/test'), '/test2/test')

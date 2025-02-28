@@ -90,7 +90,9 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
     if (syncPath === '#') {
       parentUrl.hash = path
     } else if (syncPath.startsWith('/')) {
-      parentUrl.pathname = new URL(path, new URL(syncPath, currentParentHref)).pathname
+      // a full path is not accepted, only a path child of the base
+      if (path === '' || path.startsWith('/')) parentUrl.pathname = syncPath
+      else parentUrl.pathname = new URL(path, new URL(syncPath, currentParentHref)).pathname
     } else {
       if (path) parentUrl.searchParams.set(syncPath, path)
       else parentUrl.searchParams.delete(syncPath)

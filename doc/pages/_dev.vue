@@ -9,16 +9,21 @@
     <v-row>
       <v-col>
         <d-frame
-          :src="`${$config.app.baseURL}children/_dev?static=1`"
+          :src="`${$config.app.baseURL}children/_dev/?static=1`"
           style="max-width:300px;"
           resize
           debug
           sync-params
+          :sync-path="`${$config.app.baseURL}_dev/`"
           .adapter="stateChangeAdapter"
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"
         />
       </v-col>
-      <v-col />
+      <v-col>
+        <div style="max-width:300px;">
+          <router-view />
+        </div>
+      </v-col>
     </v-row>
   </v-container>
 </template>
