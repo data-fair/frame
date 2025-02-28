@@ -145,6 +145,9 @@ export class DFrameElement extends HTMLElement {
   private iframeLoaded: boolean = false
   private ready: boolean = false
   private iframeExtraAttrs: { [key: string]: string } = {}
+  private resizeObserver: ResizeObserver
+  private boundOnMessage: (e: MessageEvent) => void = (e) => this.onMessage(e)
+  private mouseEventListeners: { [key: string]: (e: any) => void } = {}
 
   get actualAspectRatio () {
     if (this.aspectRatio !== 'auto') return Number(this.aspectRatio)
@@ -180,18 +183,15 @@ export class DFrameElement extends HTMLElement {
     const shadowRoot = this.attachShadow({ mode: 'open' })
     shadowRoot.appendChild(root)
 
-    const resizeObserver = new ResizeObserver((entries) => {
+    this.resizeObserver = new ResizeObserver((entries) => {
       // make this callback insensitive to micro changes
       if (this.width === undefined || Math.abs(this.width - entries[0].contentRect.width) > 2) {
         this.width = entries[0].contentRect.width
         this.updateAspectRatioHeight()
       }
     })
-    resizeObserver.observe(this)
 
     this.adapter = this.windowAdapter = new WindowStateChangeAdapter()
-
-    window.addEventListener('message', (e) => this.onMessage(e))
   }
 
   onMessage (e: MessageEvent) {
@@ -359,10 +359,14 @@ export class DFrameElement extends HTMLElement {
   private initMouseEvents (types: MouseEvent['type'][]) {
     this.log('debug', 'initMouseEvents')
     for (const eventType of types) {
-      document.addEventListener(eventType, (e) => {
-        if (!(e instanceof MouseEvent)) return
-        this.transmitSyncedMouseEvent(['df-global', 'mouse', eventType, { altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey }])
-      }, true)
+      if (!this.mouseEventListeners[eventType]) {
+        const listener = (e: any) => {
+          if (!(e instanceof MouseEvent)) return
+          this.transmitSyncedMouseEvent(['df-global', 'mouse', eventType, { altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey }])
+        }
+        this.mouseEventListeners[eventType] = listener
+        document.addEventListener(eventType, listener, true)
+      }
     }
   }
 
@@ -400,10 +404,15 @@ export class DFrameElement extends HTMLElement {
     if (!this.hasAttribute('src')) throw new Error('src is a required attribute')
     this.log('debug', 'connected')
     this.connected = true
+
     if (this.adapter.onStateChange) {
       this.adapter.onStateChange(() => { this.updateSrc() })
     }
+    this.resizeObserver.observe(this)
+    window.addEventListener('message', this.boundOnMessage)
+
     if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
+
     this.updateStyle()
     this.updateIframeExtraAttrs()
     this.updateSrc()
@@ -412,8 +421,12 @@ export class DFrameElement extends HTMLElement {
 
   disconnectedCallback () {
     this.log('debug', 'disconnected')
-    if (this.debug) console.timeEnd(`d-frame:${this.id}`)
-    // TODO: more cleanup (resize observer, etc)
+    this.resizeObserver.disconnect()
+    window.removeEventListener('message', this.boundOnMessage)
+    for (const [eventType, listener] of Object.entries(this.mouseEventListeners)) {
+      document.removeEventListener(eventType, listener, true)
+      delete this.mouseEventListeners[eventType]
+    }
   }
 
   /* reflected attributes */
