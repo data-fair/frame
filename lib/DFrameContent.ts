@@ -34,17 +34,28 @@ const windowEventTypes = [
 
 export type DFrameContentOptions = { updateSrc?: (src: string, instance: DFrameContent) => void }
 
+declare global {
+  interface Window { __d_frame__content: DFrameContent }
+}
+
 export default class DFrameContent {
   public initialized: boolean = false
   public options: DFrameContentOptions
   private pendingCheckHeight: boolean = false
   public debug: boolean = false
   public id?: string
-  private throttledCheckHeight: () => void
+  private throttledCheckHeight?: () => void
   private lastHeight = 0
 
   constructor (options?: DFrameContentOptions) {
     this.options = options ?? {}
+
+    if (typeof window === 'undefined') return
+    if (window.__d_frame__content) {
+      throw new Error('DFrameContent was already initialized')
+    }
+    window.__d_frame__content = this
+
     const afCallback = () => {
       this.checkHeight()
       this.pendingCheckHeight = false
@@ -55,7 +66,6 @@ export default class DFrameContent {
       requestAnimationFrame(afCallback)
     }
 
-    if (typeof window === 'undefined') return
     window.addEventListener('message', (e) => this.onMessage(e))
     // simple handshake for initialization
     this.postMessageToParent(['df-child', 'init'])
@@ -179,6 +189,7 @@ export default class DFrameContent {
   private createMutationObserver () {
     const body = document.querySelector('body')
     if (!body) throw new Error('DFrameContentManager was initialized before the HTML body')
+    if (!this.throttledCheckHeight) throw new Error('throttledCheckHeight is not defined')
     const observer = new window.MutationObserver(this.throttledCheckHeight)
     observer.observe(body, {
       attributes: false,
@@ -191,6 +202,7 @@ export default class DFrameContent {
   }
 
   private createWindowEventListeners () {
+    if (!this.throttledCheckHeight) throw new Error('throttledCheckHeight is not defined')
     for (const eventType of windowEventTypes) {
       window.addEventListener(eventType, this.throttledCheckHeight, { passive: true })
     }
