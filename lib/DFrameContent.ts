@@ -75,6 +75,10 @@ export default class DFrameContent {
         this.id = message[2].id
         this.debug = !!message[2].debug
         if (this.debug) console.time(`d-frame:${this.id}:content`)
+        this.log('debug', 'init handshake is ok', message, this.options)
+        if (message[2].src && message[2].src !== window.location.href) {
+          this.log('error', `src mismatch at init, maybe the frame navigated before the initialization handshake: ${window.location.href} !== ${message[2].src}`)
+        }
         if (message[2].resize !== 'no') this.initResize()
         if (message[2].syncParams || message[2].syncPath || message[2].stateChangeEvents) this.initStateChangeWatcher()
         if (message[2].mouseEvents) this.initMouseEvents(message[2].mouseEvents)
@@ -83,10 +87,12 @@ export default class DFrameContent {
       if (isUpdateSrcMessage(message)) {
         const newSrc = message[2].startsWith('/') ? window.location.origin + message[2] : message[2]
         if (newSrc === window.location.href) return
+        this.log('debug', `update src ${window.location.href} -> ${newSrc}`)
         if (this.options.updateSrc) {
           this.options.updateSrc(newSrc, this)
         } else {
-          window.location.href = message[2]
+          this.log('debug', 'no updateSrc method available, falling back to updating window.location.href', newSrc)
+          window.location.href = newSrc
         }
       }
       if (isMouseEventMessage(message)) this.applySyncedMouseEvent(message)

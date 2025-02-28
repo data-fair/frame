@@ -1,4 +1,4 @@
-import { type StateChangeAdapter } from '../DFrameElement.js'
+import { type DFrameElement, type StateChangeAdapter } from '../DFrameElement.js'
 import type { Router } from 'vue-router'
 
 class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
@@ -7,7 +7,7 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
     this.router = router
   }
 
-  stateChange (action: 'push' | 'replace', newUrl: URL): void {
+  stateChange (action: 'push' | 'replace', newUrl: URL, element: DFrameElement): void {
     // @ts-ignore vue-router v2
     const base = this.router.options?.base ?? this.router.options.history?.base as string | undefined
     if (base === null || base === undefined) {
@@ -19,6 +19,7 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
     }
     let newRoute = newUrl.href.replace(urlPrefix, '')
     if (!newRoute.startsWith('/')) newRoute = '/' + newRoute
+    element.log('debug', 'apply state change on vue.router', action, newRoute)
     if (action === 'push') this.router.push(newRoute)
     if (action === 'replace') this.router.replace(newRoute)
   }

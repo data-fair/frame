@@ -86,7 +86,7 @@
           :src="`${$config.app.baseURL}children/nav-sync-path/`"
           style="max-width:300px;"
           resize
-          sync-path="/nav-sync-path/"
+          :sync-path="`${$config.app.baseURL}nav-sync-path/`"
           debug
           .adapter="stateChangeAdapter"
           class="border-dashed border-md border-text-info border-opacity-100 pa-2"

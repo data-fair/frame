@@ -47,6 +47,7 @@ export type InitParentMessage = ['df-parent', 'init', {
   syncPath: boolean,
   stateChangeEvents: boolean,
   mouseEvents: null | string[],
+  src: string | null
 }]
 export type UpdateSrcMessage = ['df-parent', 'updateSrc', string]
 export type ParentMessage = InitParentMessage | UpdateSrcMessage | MouseEventMessage

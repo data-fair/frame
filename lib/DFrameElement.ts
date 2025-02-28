@@ -5,12 +5,13 @@ import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } fro
 import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-notif.js'
 
 export interface StateChangeAdapter {
-  stateChange (action: 'push' | 'replace', newUrl: URL): void,
+  stateChange (action: 'push' | 'replace', newUrl: URL, element: DFrameElement): void,
   onStateChange (callback: () => void): void
 }
 
 class WindowStateChangeAdapter implements StateChangeAdapter {
-  stateChange (action: 'push' | 'replace', newUrl: URL): void {
+  stateChange (action: 'push' | 'replace', newUrl: URL, element: DFrameElement): void {
+    element.log('debug', 'apply state change on window.history', action, newUrl.href)
     if (action === 'replace') window.history.replaceState(window.history.state, '', newUrl)
     if (action === 'push') window.history.pushState(window.history.state, '', newUrl)
   }
@@ -41,7 +42,7 @@ template.innerHTML = `<style>
   }
 </style><div class="d-frame-wrapper"><slot name="loading"><div style="min-height:150px;"></div></slot><iframe class="d-frame-iframe" style="visibility:hidden;position:absolute;height:0px;"></iframe></div>`
 
-export default class DFrameElement extends HTMLElement {
+export class DFrameElement extends HTMLElement {
   get id () { return this.getAttribute('id') ?? this.randomId }
   set id (value) {
     this.setAttribute('id', value)
@@ -207,7 +208,8 @@ export default class DFrameElement extends HTMLElement {
             syncParams: this.syncParams !== null,
             syncPath: this.syncPath !== null,
             stateChangeEvents: this.stateChangeEvents,
-            mouseEvents: this.mouseEvents
+            mouseEvents: this.mouseEvents,
+            src: this.currentChildSrc
           }])
           this.childInitialized = true
         }
@@ -226,10 +228,10 @@ export default class DFrameElement extends HTMLElement {
             if (newParentHUrl.href !== window.location.href) {
               this.log('debug', 'apply state change to parent', message[2], newParentHUrl.href)
               try {
-                this.adapter.stateChange(message[2], newParentHUrl)
+                this.adapter.stateChange(message[2], newParentHUrl, this)
               } catch (err) {
                 this.log('error', 'failed to apply state change to parent using custom adapter', err)
-                this.windowAdapter.stateChange(message[2], newParentHUrl)
+                this.windowAdapter.stateChange(message[2], newParentHUrl, this)
               }
             }
           } if (this.stateChangeEvents) {
@@ -441,3 +443,5 @@ export default class DFrameElement extends HTMLElement {
     }
   }
 }
+
+export default DFrameElement
