@@ -59,8 +59,8 @@ import dFrameContentVueRouter from '../../../../lib/vue-router/d-frame-content'
 const router = useRouter()
 const route = useRoute()
 
-// trigger a replace too early, this will be ignored for now, but should be logged as an error in the console
-router.replace({ query: { param: 10 } })
+// trigger a replace too early, this will be ignored initially, but should be logged as an error in the console
+// router.replace({ query: { param: 10 } })
 
 dFrameContentVueRouter(router)
 dFrameContentVueRouter(router) // should be ignored
