@@ -39,6 +39,7 @@ template.innerHTML = `<style>
     width: 100%;
     height: 100%;
     border: none;
+    user-select: none;
   }
 </style><div class="d-frame-wrapper"><slot name="loading"><div style="min-height:150px;"></div></slot><iframe class="d-frame-iframe" style="visibility:hidden;position:absolute;height:0px;"></iframe></div>`
 
