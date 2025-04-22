@@ -27,12 +27,16 @@ class WindowStateChangeAdapter implements StateChangeAdapter {
 }
 
 const template = document.createElement('template')
-template.innerHTML = `<style>
+const cspNonce = (document.head?.querySelector('meta[property=csp-nonce]') as HTMLMetaElement)?.content || undefined
+template.innerHTML = `<style${cspNonce ? ` nonce="${cspNonce}"` : ''}>
   :host {
     display: block;
   }
   .d-frame-wrapper {
     height: 100%;
+  }
+  .d-frame-wrapper div {
+    min-height: 150px;
   }
   iframe.d-frame-iframe {
     display: block;
@@ -41,7 +45,7 @@ template.innerHTML = `<style>
     border: none;
     user-select: none;
   }
-</style><div class="d-frame-wrapper"><slot name="loading"><div style="min-height:150px;"></div></slot><iframe class="d-frame-iframe" style="visibility:hidden;position:absolute;height:0px;"></iframe></div>`
+</style><div class="d-frame-wrapper"><slot name="loading"><div></div></slot><iframe class="d-frame-iframe"></iframe></div>`
 
 export class DFrameElement extends HTMLElement {
   get id () { return this.getAttribute('id') ?? this.randomId }
@@ -168,6 +172,12 @@ export class DFrameElement extends HTMLElement {
     this.slotElement = this.wrapperElement.childNodes[0] as HTMLSlotElement
 
     this.iframeElement = this.wrapperElement.childNodes[1] as HTMLIFrameElement
+
+    // Initialize iframe styles
+    this.iframeElement.style.visibility = 'hidden'
+    this.iframeElement.style.position = 'absolute'
+    this.iframeElement.style.height = '0px'
+
     this.iframeElement.addEventListener('load', () => {
       if (this.iframeElement.getAttribute('src')) {
         this.log('debug', 'iframe loaded')
@@ -295,9 +305,9 @@ export class DFrameElement extends HTMLElement {
     }
     if (wrapperHeight !== undefined) {
       this.log('debug', 'set height iframe wrapper: ' + wrapperHeight)
-      this.wrapperElement.setAttribute('style', `height:${wrapperHeight};min-height:0;`)
+      this.wrapperElement.style.cssText = `height: ${wrapperHeight}; min-height: 0;`
     } else {
-      this.wrapperElement.setAttribute('style', '')
+      this.wrapperElement.style.cssText = ''
     }
 
     // set scrolling attribute of iframe
@@ -314,10 +324,10 @@ export class DFrameElement extends HTMLElement {
     }
 
     // toggle loading slot vs iframe visibility
-    if (this.ready && this.iframeElement.getAttribute('style') !== '') {
+    if (this.ready && this.iframeElement.style.cssText !== '') {
       this.log('debug', 'toggle loading slot and iframe visibility')
-      this.iframeElement.setAttribute('style', '')
-      this.slotElement.setAttribute('style', 'display:none;')
+      this.iframeElement.style.cssText = ''
+      this.slotElement.style.cssText = 'display:none;'
     }
   }
 
