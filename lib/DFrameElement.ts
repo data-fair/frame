@@ -451,11 +451,15 @@ export class DFrameElement extends HTMLElement {
     if (name === 'sync-path') this.updateSrc()
     if (name === 'reload') {
       if (!this.currentChildSrc) {
-        this.log('debug', 'reload attribute changed but no iframe previously src')
+        this.log('debug', 'reload attribute changed but the iframe has no current src')
         return
       }
       if (!this.iframeElement.contentWindow?.location) {
         this.log('debug', 'reload attribute changed but no iframe contentWindow, is this a cross domain iframe ?')
+        return
+      }
+      if (!this.iframeLoaded) {
+        this.log('debug', 'reload attribute changed before initial loading was complete, ignore it')
         return
       }
       this.log('debug', 'reload iframe with current src', this.currentChildSrc)
