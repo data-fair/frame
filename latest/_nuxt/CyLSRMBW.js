@@ -1,1 +1,0 @@
-import{I as u,r as i}from"./BcYttlQg.js";const U=n=>{let r={},s={};const l=e=>{if(r[e])return r[e];const t=r[e]=i(),a=c=>{t.value=c};return s[e]=a,n.addParentUrlListener(e,a),t},o=()=>{for(const[e,t]of Object.entries(s))n.removeParentUrlListener(e,t);r={},s={}};return u(o),{get:l,clear:o}};export{U as u};
