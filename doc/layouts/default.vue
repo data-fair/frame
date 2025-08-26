@@ -78,6 +78,11 @@
             Navigation syncing with path
           </v-list-item-title>
         </v-list-item>
+        <v-list-item to="/nav-sync-top-links">
+          <v-list-item-title>
+            Navigation syncing and top links
+          </v-list-item-title>
+        </v-list-item>
         <v-list-item to="/dynamic-nav-sync">
           <v-list-item-title>
             Dynamic navigation syncing

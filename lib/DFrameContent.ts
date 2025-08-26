@@ -1,4 +1,5 @@
-import { isInitParentMessage, isMouseEventMessage, isUpdateSrcMessage, type MouseEventMessage, type ChildMessage, type Notif } from './messages.js'
+import { isInitParentMessage, isMouseEventMessage, isUpdateSrcMessage, type MouseEventMessage, type ChildMessage, type Notif, isParentUrlMessage } from './messages.js'
+import inIframe from './utils/in-iframe.js'
 
 const windowEventTypes = [
   'animationstart',
@@ -46,6 +47,8 @@ export default class DFrameContent {
   public id?: string
   private throttledCheckHeight?: () => void
   private lastHeight = 0
+  private parentUrlListeners: Record<string, ((result: string) => any)[]> = {}
+  private parentUrlResults: Record<string, string> = {}
 
   constructor (options?: DFrameContentOptions) {
     this.options = options ?? {}
@@ -105,7 +108,18 @@ export default class DFrameContent {
           window.location.href = newSrc
         }
       }
-      if (isMouseEventMessage(message)) this.applySyncedMouseEvent(message)
+      if (isMouseEventMessage(message)) {
+        this.applySyncedMouseEvent(message)
+      }
+      if (isParentUrlMessage(message)) {
+        if (!this.parentUrlListeners[message[2]]) {
+          this.log('error', `received getParentUrlResponse message but no matching callback is registered: ${message[2]}`)
+        } else {
+          for (const listener of this.parentUrlListeners[message[2]]) {
+            listener(message[3])
+          }
+        }
+      }
     }
   }
 
@@ -123,6 +137,32 @@ export default class DFrameContent {
 
   public ready () {
     this.postMessageToParent(['df-child', 'ready'])
+  }
+
+  // this is not a single-time callback, it can be called multiple times when parent url changes
+  public addParentUrlListener (partialChildHref: string, listener: (result: string) => any) {
+    const childHref = new URL(partialChildHref, window.location.href).href
+    if (!inIframe) {
+      listener(childHref)
+      return
+    }
+    if (this.parentUrlResults[childHref]) {
+      listener(this.parentUrlResults[childHref])
+    }
+    this.parentUrlListeners[childHref] = this.parentUrlListeners[childHref] ?? []
+    this.parentUrlListeners[childHref].push(listener)
+    this.postMessageToParent(['df-child', 'addParentUrlListener', childHref])
+  }
+
+  public removeParentUrlListener (partialChildHref: string, listener: (result: string) => any) {
+    const childHref = new URL(partialChildHref, window.location.href).href
+    if (this.parentUrlListeners[childHref]) {
+      this.parentUrlListeners[childHref] = this.parentUrlListeners[childHref].filter(cb => cb !== listener)
+      if (!this.parentUrlListeners[childHref].length) {
+        delete this.parentUrlListeners[childHref]
+        this.postMessageToParent(['df-child', 'removeParentUrlListener', childHref])
+      }
+    }
   }
 
   private currentSyncedMouseEvents: Set<MouseEvent['type']> = new Set()

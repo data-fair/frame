@@ -10,8 +10,19 @@ export type HeightMessage = ['df-child', 'height', number]
 export type StateChangeMessage = ['df-child', 'stateChange', 'replace' | 'push', string ]
 export type CustomMessage = ['df-child', 'custom', any ]
 export type NotifMessage = ['df-child', 'notif', Notif]
+export type AddParentUrlListenerMessage = ['df-child', 'addParentUrlListener', string]
+export type RemoveParentUrlListenerMessage = ['df-child', 'removeParentUrlListener', string]
 export type ReadyMessage = ['df-child', 'ready']
-export type ChildMessage = InitChildMessage | HeightMessage | StateChangeMessage | CustomMessage | NotifMessage | MouseEventMessage | ReadyMessage
+export type ChildMessage =
+  InitChildMessage |
+  HeightMessage |
+  StateChangeMessage |
+  CustomMessage |
+  NotifMessage |
+  MouseEventMessage |
+  AddParentUrlListenerMessage |
+  RemoveParentUrlListenerMessage |
+  ReadyMessage
 
 export type Notif = {
   type: 'default' | 'info' | 'success' | 'warning' | 'error',
@@ -34,6 +45,12 @@ export function isCustomMessage (message: any): message is CustomMessage {
 export function isNotifMessage (message: any): message is NotifMessage {
   return message[0] === 'df-child' && message[1] === 'notif'
 }
+export function isAddParentUrlListenerMessage (message: any): message is AddParentUrlListenerMessage {
+  return message[0] === 'df-child' && message[1] === 'addParentUrlListener'
+}
+export function isRemoveParentUrlListenerMessage (message: any): message is RemoveParentUrlListenerMessage {
+  return message[0] === 'df-child' && message[1] === 'removeParentUrlListener'
+}
 export function isReadyMessage (message: any): message is ReadyMessage {
   return message[0] === 'df-child' && message[1] === 'ready'
 }
@@ -50,11 +67,19 @@ export type InitParentMessage = ['df-parent', 'init', {
   src: string | null
 }]
 export type UpdateSrcMessage = ['df-parent', 'updateSrc', string]
-export type ParentMessage = InitParentMessage | UpdateSrcMessage | MouseEventMessage
+export type ParentUrlMessage = ['df-parent', 'parentUrl', string, string]
+export type ParentMessage =
+  InitParentMessage |
+  UpdateSrcMessage |
+  MouseEventMessage |
+  ParentUrlMessage
 
 export function isInitParentMessage (message: any[]): message is InitParentMessage {
   return message[0] === 'df-parent' && message[1] === 'init'
 }
 export function isUpdateSrcMessage (message: any[]): message is UpdateSrcMessage {
   return message[0] === 'df-parent' && message[1] === 'updateSrc'
+}
+export function isParentUrlMessage (message: any[]): message is ParentUrlMessage {
+  return message[0] === 'df-parent' && message[1] === 'parentUrl'
 }

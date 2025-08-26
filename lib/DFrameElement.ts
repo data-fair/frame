@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isCustomMessage, isHeightMessage, isInitChildMessage, isMouseEventMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, type MouseEventMessage, type ParentMessage } from './messages.js'
+import { isCustomMessage, isAddParentUrlListenerMessage, isRemoveParentUrlListenerMessage, isHeightMessage, isInitChildMessage, isMouseEventMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, type MouseEventMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
 import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-notif.js'
 
@@ -156,6 +156,7 @@ export class DFrameElement extends HTMLElement {
   private resizeObserver: ResizeObserver
   private boundOnMessage: (e: MessageEvent) => void = (e) => this.onMessage(e)
   private mouseEventListeners: { [key: string]: (e: any) => void } = {}
+  private parentUrlListeners: Record<string, string> = {}
 
   get actualAspectRatio () {
     if (this.aspectRatio !== 'auto') return Number(this.aspectRatio)
@@ -233,14 +234,14 @@ export class DFrameElement extends HTMLElement {
         if (isStateChangeMessage(message)) {
           this.currentChildSrc = message[3]
           if ((this.parsedSyncParams || this.syncPath)) {
-            const newParentHUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
-            if (newParentHUrl.href !== window.location.href) {
-              this.log('debug', 'apply state change to parent', message[2], newParentHUrl.href)
+            const newParentUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
+            if (newParentUrl.href !== window.location.href) {
+              this.log('debug', 'apply state change to parent', message[2], newParentUrl.href)
               try {
-                this.adapter.stateChange(message[2], newParentHUrl, this)
+                this.adapter.stateChange(message[2], newParentUrl, this)
               } catch (err) {
                 this.log('error', 'failed to apply state change to parent using custom adapter', err)
-                this.windowAdapter.stateChange(message[2], newParentHUrl, this)
+                this.windowAdapter.stateChange(message[2], newParentUrl, this)
               }
             }
           } if (this.stateChangeEvents) {
@@ -258,7 +259,17 @@ export class DFrameElement extends HTMLElement {
           this.dispatchEvent(new CustomEvent('ready'))
           this.updateStyle()
         }
-        if (isMouseEventMessage(message)) this.applySyncedMouseEvent(message)
+        if (isMouseEventMessage(message)) {
+          this.applySyncedMouseEvent(message)
+        }
+        if (isAddParentUrlListenerMessage(message)) {
+          const parentUrl = getParentUrl(this.fullSrc, message[2], window.location.href, this.parsedSyncParams, this.syncPath).href
+          this.parentUrlListeners[message[2]] = parentUrl
+          this.postMessageToChild(['df-parent', 'parentUrl', message[2], parentUrl])
+        }
+        if (isRemoveParentUrlListenerMessage(message)) {
+          delete this.parentUrlListeners[message[2]]
+        }
       } else if (isVIframeUiNotif(message)) {
         // maintain compatibility with v-iframe notifications sent through postMessage
         this.dispatchEvent(new CustomEvent('notif', { detail: convertVIframeUiNotif(message.uiNotification) }))
@@ -273,6 +284,15 @@ export class DFrameElement extends HTMLElement {
 
   updateSrc () {
     if (!this.connected) return
+
+    for (const [childHref, existingParentUrl] of Object.entries(this.parentUrlListeners)) {
+      const parentUrl = getParentUrl(this.fullSrc, childHref, window.location.href, this.parsedSyncParams, this.syncPath).href
+      if (parentUrl !== existingParentUrl) {
+        this.parentUrlListeners[childHref] = parentUrl
+        this.postMessageToChild(['df-parent', 'parentUrl', childHref, parentUrl])
+      }
+    }
+
     const iframeSrc = getChildSrc(this.fullSrc, window.location.href, this.parsedSyncParams, this.syncPath)
     if (iframeSrc === this.currentChildSrc) return
     this.currentChildSrc = iframeSrc

@@ -9,7 +9,7 @@
       color="primary"
       variant="elevated"
       class="ml-2"
-      to="/children/nav-sync-path/child"
+      @click="router.push('/children/nav-sync-path/child')"
     >
       Go to child
     </v-btn>
@@ -24,5 +24,6 @@
 <script setup lang="ts">
 import dFrameContentVueRouter from '../../../../lib/vue-router/d-frame-content'
 
-dFrameContentVueRouter(useRouter())
+const router = useRouter()
+dFrameContentVueRouter(router)
 </script>
