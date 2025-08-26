@@ -34,5 +34,5 @@ import dFrameContentVueRouter from '../../../../lib/vue-router/d-frame-content'
 const router = useRouter()
 const dFrameContent = dFrameContentVueRouter(router)
 
-const parentUrls = useDFrameParentUrls(dFrameContent)
+const parentUrls = useDFrameParentUrls(dFrameContent, router)
 </script>
