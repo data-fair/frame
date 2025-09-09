@@ -54,6 +54,22 @@
       @message="(frameMessage: CustomEvent<any>) => { message = frameMessage.detail; showSnackBar2 = true }"
     />
 
+    <h2 class="text-h4 mt-8">
+      Catch all messages from IFrame
+    </h2>
+    <p class="my-4">
+      You can also catch all messages sent from the child to the parent using the standard postMessage API.
+      To do so you must set the <code>emit-iframe-messages</code> attribute, and use an event handler like so : <code>@iframe-message="(iframeMessage: CustomEvent) => { message = iframeMessage.detail; showSnackBar = true }"</code>
+    </p>
+    <d-frame
+      :src="`${$config.app.baseURL}children/send-message`"
+      style="max-width:300px;"
+      resize
+      class="border-dashed border-md border-text-info border-opacity-100 pa-2"
+      emit-iframe-messages
+      @iframe-message="(iframeMessage: CustomEvent<any>) => { message = iframeMessage.detail; showSnackBar2 = true }"
+    />
+
     <v-snackbar
       v-if="!!message"
       v-model="showSnackBar2"

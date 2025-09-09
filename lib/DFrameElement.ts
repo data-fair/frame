@@ -135,6 +135,12 @@ export class DFrameElement extends HTMLElement {
   get reload () { return this.getAttribute('reload') as string }
   set reload (value) { this.setAttribute('reload', value) }
 
+  get emitIFrameMessages () { return this.hasAttribute('emit-iframe-messages') }
+  set emitIFrameMessages (value) {
+    if (value) this.setAttribute('emit-iframe-messages', '')
+    else this.removeAttribute('emit-iframe-messages')
+  }
+
   public adapter: StateChangeAdapter
   public windowAdapter: StateChangeAdapter
 
@@ -205,6 +211,9 @@ export class DFrameElement extends HTMLElement {
   }
 
   onMessage (e: MessageEvent) {
+    if (this.emitIFrameMessages) {
+      this.dispatchEvent(new CustomEvent('iframe-message', { detail: e.data }))
+    }
     if (e.source === this.iframeElement?.contentWindow) {
       const message = e.data
       this.log('debug', 'received message from child', message)
