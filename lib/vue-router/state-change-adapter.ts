@@ -5,7 +5,6 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
   router: Router
   constructor (router: Router) {
     this.router = router
-    this.router.afterEach((guard) => { console.log('AFTER EACH') })
   }
 
   stateChange (action: 'push' | 'replace', newUrl: URL, element: DFrameElement): void {

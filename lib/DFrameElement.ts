@@ -244,13 +244,17 @@ export class DFrameElement extends HTMLElement {
           this.currentChildSrc = message[3]
           if ((this.parsedSyncParams || this.syncPath)) {
             const newParentUrl = getParentUrl(this.fullSrc, message[3], window.location.href, this.parsedSyncParams, this.syncPath)
-            if (newParentUrl.href !== window.location.href) {
-              this.log('debug', 'apply state change to parent', message[2], newParentUrl.href)
-              try {
-                this.adapter.stateChange(message[2], newParentUrl, this)
-              } catch (err) {
-                this.log('error', 'failed to apply state change to parent using custom adapter', err)
-                this.windowAdapter.stateChange(message[2], newParentUrl, this)
+            if (newParentUrl === null) {
+              this.log('debug', 'failed to process newParentUrl, ignore state change')
+            } else {
+              if (newParentUrl.href !== window.location.href) {
+                this.log('debug', 'apply state change to parent', message[2], newParentUrl.href)
+                try {
+                  this.adapter.stateChange(message[2], newParentUrl, this)
+                } catch (err) {
+                  this.log('error', 'failed to apply state change to parent using custom adapter', err)
+                  this.windowAdapter.stateChange(message[2], newParentUrl, this)
+                }
               }
             }
           } if (this.stateChangeEvents) {
@@ -272,9 +276,11 @@ export class DFrameElement extends HTMLElement {
           this.applySyncedMouseEvent(message)
         }
         if (isAddParentUrlListenerMessage(message)) {
-          const parentUrl = getParentUrl(this.fullSrc, message[2], window.location.href, this.parsedSyncParams, this.syncPath).href
-          this.parentUrlListeners[message[2]] = parentUrl
-          this.postMessageToChild(['df-parent', 'parentUrl', message[2], parentUrl])
+          const parentUrl = getParentUrl(this.fullSrc, message[2], window.location.href, this.parsedSyncParams, this.syncPath)
+          if (parentUrl) {
+            this.parentUrlListeners[message[2]] = parentUrl.href
+            this.postMessageToChild(['df-parent', 'parentUrl', message[2], parentUrl.href])
+          }
         }
         if (isRemoveParentUrlListenerMessage(message)) {
           delete this.parentUrlListeners[message[2]]
@@ -295,14 +301,17 @@ export class DFrameElement extends HTMLElement {
     if (!this.connected) return
 
     for (const [childHref, existingParentUrl] of Object.entries(this.parentUrlListeners)) {
-      const parentUrl = getParentUrl(this.fullSrc, childHref, window.location.href, this.parsedSyncParams, this.syncPath).href
-      if (parentUrl !== existingParentUrl) {
-        this.parentUrlListeners[childHref] = parentUrl
-        this.postMessageToChild(['df-parent', 'parentUrl', childHref, parentUrl])
+      const parentUrl = getParentUrl(this.fullSrc, childHref, window.location.href, this.parsedSyncParams, this.syncPath)
+      if (parentUrl) {
+        if (parentUrl.href !== existingParentUrl) {
+          this.parentUrlListeners[childHref] = parentUrl.href
+          this.postMessageToChild(['df-parent', 'parentUrl', childHref, parentUrl.href])
+        }
       }
     }
 
     const iframeSrc = getChildSrc(this.fullSrc, window.location.href, this.parsedSyncParams, this.syncPath)
+    if (!iframeSrc) return
     if (iframeSrc === this.currentChildSrc) return
     this.currentChildSrc = iframeSrc
     if (this.childInitialized) {

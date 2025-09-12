@@ -18,7 +18,7 @@ const getParentHrefShort = (src, childHref, currentParentHref, syncParams, syncP
   currentParentHref = 'http://te.st' + currentParentHref
   childHref = 'http://te.st' + childHref
   const srcUrl = new URL('http://te.st' + src)
-  return getParentUrl(srcUrl, childHref, currentParentHref, parseSyncParams(syncParams), syncPath ?? null).href
+  return getParentUrl(srcUrl, childHref, currentParentHref, parseSyncParams(syncParams), syncPath ?? null)?.href
 }
 
 describe('sync-params utility functions', () => {
@@ -61,6 +61,13 @@ describe('sync-params utility functions', () => {
     assert.equal(
       getChildSrcShort('/children/', '/base?param0=0', '*', '/base/'),
       'http://te.st/children/?param0=0'
+    )
+  })
+
+  it('do not reflect parent state change that goes out of the base path', () => {
+    assert.equal(
+      getChildSrcShort('/children/', '/anotherdir', '*', '/base/'),
+      null
     )
   })
 
@@ -111,9 +118,24 @@ describe('sync-params utility functions', () => {
       getParentHrefShort('/dir/', '/dir/child2', '/parent', '*', '/base/'),
       'http://te.st/base/child2'
     )
+    assert.equal(
+      getParentHrefShort('/dir/', '/dir', '/parent', '*', '/base/'),
+      'http://te.st/base/'
+    )
+    assert.equal(
+      getParentHrefShort('/dir/', '/dir/', '/parent', '*', '/base/'),
+      'http://te.st/base/'
+    )
   })
 
-  it.only('should reflect path from child (in a directory without trailing /) to parent in path', () => {
+  it('do not reflect child state change that goes out of the base path', () => {
+    assert.equal(
+      getParentHrefShort('/dir/', '/another-dir/child', '/parent', '*', '/base/'),
+      undefined
+    )
+  })
+
+  it('should reflect path from child (in a directory without trailing /) to parent in path', () => {
     assert.equal(
       getParentHrefShort('/dir/', '/dir', '/parent', '*', '/base/'),
       'http://te.st/base/'

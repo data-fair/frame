@@ -41,8 +41,10 @@ export function getChildSrc (fullSrc: string, parentHref: string, syncParams: Pa
     if (syncPath === '#') {
       path = parentUrl.hash.slice(1)
     } else if (syncPath.startsWith('/')) {
-      if (parentUrl.pathname.startsWith(syncPath)) {
+      if (parentUrl.pathname.startsWith(syncPath) || (parentUrl.pathname + '/') === syncPath) {
         path = getUrlRelativePath(new URL(syncPath, parentHref), parentUrl)
+      } else {
+        return null
       }
     } else {
       path = parentUrl.searchParams.get(syncPath)
@@ -91,7 +93,8 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
       parentUrl.hash = path
     } else if (syncPath.startsWith('/')) {
       // a full path is not accepted, only a path child of the base
-      if (path === '' || path.startsWith('/')) parentUrl.pathname = syncPath
+      if (path.startsWith('/')) return null
+      if (path === '') parentUrl.pathname = syncPath
       else parentUrl.pathname = new URL(path, new URL(syncPath, currentParentHref)).pathname
     } else {
       if (path) parentUrl.searchParams.set(syncPath, path)
