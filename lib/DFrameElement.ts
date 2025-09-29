@@ -66,6 +66,9 @@ export class DFrameElement extends HTMLElement {
   set src (value) { this.setAttribute('src', value) }
   get fullSrc () { return this.src.startsWith('/') ? (window.location.origin + this.src) : this.src }
 
+  get scrolling () { return this.getAttribute('scrolling') as string }
+  set scrolling (value) { this.setAttribute('scrolling', value) }
+
   get aspectRatio () {
     const value = this.getAttribute('aspect-ratio')
     if (value === '') return 'auto'
@@ -347,15 +350,20 @@ export class DFrameElement extends HTMLElement {
     }
 
     // set scrolling attribute of iframe
-    if (this.resize === 'yes' || (this.resize === 'auto' && this.resizedHeight)) {
-      if (this.iframeElement.getAttribute('scrolling') !== 'no') {
-        this.log('debug', 'set scrolling attribute of iframe: no')
-        this.iframeElement.setAttribute('scrolling', 'no')
-      }
+    if (this.scrolling) {
+      this.log('debug', 'explicitly set of scrolling attribute of iframe: ' + this.scrolling)
+      this.iframeElement.setAttribute('scrolling', this.scrolling)
     } else {
-      if (this.iframeElement.getAttribute('scrolling') !== 'auto') {
-        this.log('debug', 'set scrolling attribute of iframe: auto')
-        this.iframeElement.setAttribute('scrolling', 'auto')
+      if (this.resize === 'yes' || (this.resize === 'auto' && this.resizedHeight)) {
+        if (this.iframeElement.getAttribute('scrolling') !== 'no') {
+          this.log('debug', 'implicitly set scrolling attribute of iframe: no')
+          this.iframeElement.setAttribute('scrolling', 'no')
+        }
+      } else {
+        if (this.iframeElement.getAttribute('scrolling') !== 'auto') {
+          this.log('debug', 'implicitly set scrolling attribute of iframe: auto')
+          this.iframeElement.setAttribute('scrolling', 'auto')
+        }
       }
     }
 
