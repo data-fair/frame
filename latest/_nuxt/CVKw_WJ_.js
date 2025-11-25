@@ -1,1 +1,0 @@
-import{_ as o}from"./7f2HLrff.js";import{_ as r,v as n,B as s,x as a,z as i,t as l}from"./CL2FVPx2.js";import"./CaNx0VVh.js";const c={};function f(m,e){const t=o;return l(),n("div",null,[e[0]||(e[0]=s(" This page mirrors the navigation state of the frame to the left. ")),e[1]||(e[1]=a("br",null,null,-1)),i(t)])}const u=r(c,[["render",f]]);export{u as default};

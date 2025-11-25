@@ -1,1 +1,0 @@
-import{I as u,r as v}from"./CL2FVPx2.js";const f=(n,o)=>{let r={},t={};const i=e=>{if(r[e])return r[e];const s=o?o.resolve(e).href:e,a=r[e]=v(),c=p=>{a.value=p};return t[s]=c,n.addParentUrlListener(s,c),a},l=()=>{for(const[e,s]of Object.entries(t))n.removeParentUrlListener(e,s);r={},t={}};return u(l),{get:i,clear:l}};export{f as u};
