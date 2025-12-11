@@ -6,7 +6,7 @@
       <source-link />
     </h1>
     <p>
-      You can send simple notifications and custom messages through d-frame. In this case d-gframe acts as a simple wrapper around the postMessage API exposed as custom events on the d-frame element.
+      You can send simple notifications and custom messages through d-frame. In this case d-frame acts as a simple wrapper around the postMessage API exposed as custom events on the d-frame element.
     </p>
 
     <h2 class="text-h4 mt-8">

@@ -124,7 +124,7 @@ export default class DFrameContent {
   }
 
   private postMessageToParent (message: ChildMessage) {
-    window.parent.postMessage(message)
+    window.parent.postMessage(message, '*')
   }
 
   public sendNotif (notif: Notif) {

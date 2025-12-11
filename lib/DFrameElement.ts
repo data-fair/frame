@@ -297,7 +297,7 @@ export class DFrameElement extends HTMLElement {
 
   postMessageToChild (message: ParentMessage) {
     this.log('debug', 'send message to child', message)
-    this.iframeElement?.contentWindow?.postMessage(message)
+    this.iframeElement?.contentWindow?.postMessage(message, '*')
   }
 
   updateSrc () {
