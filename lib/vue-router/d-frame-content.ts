@@ -1,3 +1,4 @@
+import { type App, inject } from 'vue'
 import DFrameContent, { type DFrameContentOptions } from '../DFrameContent.js'
 import type { Router } from 'vue-router'
 
@@ -32,4 +33,20 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
   })
   return dFrameContent
 }
+
+export const vueRouterDFrameContentKey = Symbol('vue-router-d-frame-content')
+export function createVueRouterDFrameContent (router: Router, options?: VueRouterDFrameContentOptions) {
+  const dFrameContent = vueRouterDFrameContent(router, options)
+  return {
+    dFrameContent,
+    install (app: App) { app.provide(vueRouterDFrameContentKey, dFrameContent) },
+  }
+}
+
+export function useVueRouterDFrameContent () {
+  const dFrameContent = inject(vueRouterDFrameContentKey)
+  if (!dFrameContent) throw new Error('useVueRouterDFrameContent requires using the plugin createVueRouterDFrameContent')
+  return dFrameContent as DFrameContent
+}
+
 export default vueRouterDFrameContent
