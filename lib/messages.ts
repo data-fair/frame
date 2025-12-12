@@ -7,6 +7,7 @@ export function isMouseEventMessage (message: any): message is MouseEventMessage
 // sent by the child as first part of initialization handshake
 export type InitChildMessage = ['df-child', 'init']
 export type HeightMessage = ['df-child', 'height', number]
+export type ReinitHeightMessage = ['df-child', 'reinit-height']
 export type StateChangeMessage = ['df-child', 'stateChange', 'replace' | 'push', string ]
 export type CustomMessage = ['df-child', 'custom', any ]
 export type NotifMessage = ['df-child', 'notif', Notif]
@@ -16,6 +17,7 @@ export type ReadyMessage = ['df-child', 'ready']
 export type ChildMessage =
   InitChildMessage |
   HeightMessage |
+  ReinitHeightMessage |
   StateChangeMessage |
   CustomMessage |
   NotifMessage |
@@ -35,6 +37,9 @@ export function isInitChildMessage (message: any): message is InitChildMessage {
 }
 export function isHeightMessage (message: any): message is HeightMessage {
   return message[0] === 'df-child' && message[1] === 'height'
+}
+export function isReinitHeightMessage (message: any): message is ReinitHeightMessage {
+  return message[0] === 'df-child' && message[1] === 'reinit-height'
 }
 export function isStateChangeMessage (message: any): message is StateChangeMessage {
   return message[0] === 'df-child' && message[1] === 'stateChange'

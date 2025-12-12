@@ -1,6 +1,11 @@
 import neostandard from 'neostandard'
 
-export default neostandard({
-  ignores: ['node_modules/', 'doc/', 'lib/**/*.d.ts', 'lib/**/*.js', 'dist/'],
-  ts: true
-})
+export default [
+  { ignores: ['dist/*', 'doc/*', 'lib/**/*.d.ts', 'lib/**/*.js'] },
+  ...neostandard({ ts: true, noJsx: true }),
+  {
+    rules: {
+      'no-undef': 'off' // taken care of by typescript
+    }
+  }
+]

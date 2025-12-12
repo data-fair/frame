@@ -1,6 +1,6 @@
 // this is a good doc about writing web components https://web.dev/articles/custom-elements-best-practices
 
-import { isCustomMessage, isAddParentUrlListenerMessage, isRemoveParentUrlListenerMessage, isHeightMessage, isInitChildMessage, isMouseEventMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, type MouseEventMessage, type ParentMessage } from './messages.js'
+import { isCustomMessage, isAddParentUrlListenerMessage, isRemoveParentUrlListenerMessage, isHeightMessage, isInitChildMessage, isMouseEventMessage, isNotifMessage, isReadyMessage, isStateChangeMessage, isReinitHeightMessage, type MouseEventMessage, type ParentMessage } from './messages.js'
 import { parseSyncParams, getChildSrc, getParentUrl, type ParsedSyncParams } from './utils/sync-params.js'
 import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-notif.js'
 
@@ -92,6 +92,13 @@ export class DFrameElement extends HTMLElement {
     if (value === null) return 'auto'
     if (value === '') return 'yes'
     return value as 'no' | 'yes' | 'auto'
+  }
+
+  set reinitHeight (value) { this.setAttribute('reinit-height', value) }
+  get reinitHeight (): 'on-message' | 'no' {
+    const value = this.getAttribute('reinit-height')
+    if (value === null || value === '') return 'on-message'
+    return value as 'on-message' | 'no'
   }
 
   get syncParams () { return this.getAttribute('sync-params') }
@@ -243,6 +250,10 @@ export class DFrameElement extends HTMLElement {
           }
           this.updateStyle()
         }
+        if (isReinitHeightMessage(message) && this.reinitHeight === 'on-message') {
+          this.resizedHeight = undefined
+          this.updateStyle()
+        }
         if (isStateChangeMessage(message)) {
           this.currentChildSrc = message[3]
           if ((this.parsedSyncParams || this.syncPath)) {
@@ -260,7 +271,8 @@ export class DFrameElement extends HTMLElement {
                 }
               }
             }
-          } if (this.stateChangeEvents) {
+          }
+          if (this.stateChangeEvents) {
             this.dispatchEvent(new CustomEvent('state-change', { detail: [message[2], message[3]] }))
           }
         }

@@ -139,6 +139,10 @@ export default class DFrameContent {
     this.postMessageToParent(['df-child', 'ready'])
   }
 
+  public reinitHeight () {
+    this.postMessageToParent(['df-child', 'reinit-height'])
+  }
+
   // this is not a single-time callback, it can be called multiple times when parent url changes
   public addParentUrlListener (partialChildHref: string, listener: (result: string) => any) {
     const childHref = new URL(partialChildHref, window.location.href).href

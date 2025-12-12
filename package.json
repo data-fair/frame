@@ -19,6 +19,7 @@
     "vue-router": "^4.5.0"
   },
   "scripts": {
+    "check-types": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "dev-zellij": "zellij --layout .zellij.kdl",
