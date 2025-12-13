@@ -1,6 +1,6 @@
 {
   "name": "@data-fair/frame",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "description": "An iframe wrapper for powerful web app integrations.",
   "main": "dist/frame.min.js",
   "directories": {
