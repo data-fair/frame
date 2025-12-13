@@ -8,7 +8,7 @@
     <br>
     Original link: /children/nav-sync-top-links/
     <br>
-    Adapted link: {{ parentUrls.get('/children/nav-sync-top-links/').value }}
+    Adapted link: {{ parentUrl }}
     <br>
     <br>
     Try "right-click > open in a new tab" on the following link.
@@ -17,7 +17,7 @@
     <router-link
       target="_top"
       to="/children/nav-sync-top-links/"
-      :href="parentUrls.get('/children/nav-sync-top-links/').value"
+      :href="parentUrl"
     >
       Go to parent
     </router-link>
@@ -28,11 +28,11 @@
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import useDFrameParentUrls from '../../../../lib/vue/use-parent-urls'
+import useParentUrl from '../../../../lib/vue-router/use-parent-url'
 import dFrameContentVueRouter from '../../../../lib/vue-router/d-frame-content'
 
 const router = useRouter()
 const dFrameContent = dFrameContentVueRouter(router)
 
-const parentUrls = useDFrameParentUrls(dFrameContent, router)
+const parentUrl = useParentUrl('/children/nav-sync-top-links/', router, dFrameContent)
 </script>

@@ -3,6 +3,7 @@ import type DFrameContent from '../DFrameContent.js'
 import type { Router } from 'vue-router'
 
 export const useDFrameParentUrls = (dFrameContent: DFrameContent, router?: Router) => {
+  console.warn('useDFrameParentUrls is deprecated, it is replaced by useParentUrl from @data-fair/frame/vue-router/use-parent-url.js')
   let parentUrls: Record<string, string | null> = reactive({})
   let listeners: Record<string, (result: string) => void> = {}
 
