@@ -1,12 +1,12 @@
 import { onScopeDispose, type MaybeRefOrGetter } from 'vue'
-import type { RouteLocationAsPathGeneric, RouteLocationAsRelativeGeneric, Router } from 'vue-router'
+import type { RouteLocationRaw, Router } from 'vue-router'
 import { useVueRouterDFrameContent } from './d-frame-content.js'
 import { toValue, ref, watch } from 'vue'
 import inIframe from '../utils/in-iframe.js'
 import type DFrameContent from '../DFrameContent.js'
 
 export const useParentUrl = (
-  location: MaybeRefOrGetter<string | RouteLocationAsPathGeneric | RouteLocationAsRelativeGeneric>,
+  location: MaybeRefOrGetter<RouteLocationRaw>,
   router: Router,
   dFrameContent?: DFrameContent
 ) => {
