@@ -10,7 +10,7 @@ export const useParentUrl = (
   router: Router,
   dFrameContent?: DFrameContent
 ) => {
-  const parentUrl = ref<string | null>(null)
+  const parentUrl = ref<string | undefined>()
   if (!inIframe) return parentUrl
 
   dFrameContent = dFrameContent ?? useVueRouterDFrameContent()
@@ -19,7 +19,7 @@ export const useParentUrl = (
 
   watch(() => toValue(location), (to) => {
     if (listener && resolved) dFrameContent.removeParentUrlListener(resolved, listener)
-    parentUrl.value = null
+    parentUrl.value = undefined
     resolved = router.resolve(to).href
     listener = (result: string) => { parentUrl.value = result }
     dFrameContent.addParentUrlListener(resolved, listener)
