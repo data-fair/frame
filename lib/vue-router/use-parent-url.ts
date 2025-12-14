@@ -8,25 +8,33 @@ import type DFrameContent from '../DFrameContent.js'
 const ssr = typeof window === 'undefined'
 
 export const useParentUrl = (
-  location: MaybeRefOrGetter<RouteLocationRaw>,
+  location: MaybeRefOrGetter<RouteLocationRaw | undefined>,
   router: Router,
   dFrameContent?: DFrameContent
 ) => {
   if (ssr || !inIframe) {
-    return computed(() => router.resolve(toValue(location)).href)
+    return computed(() => {
+      const to = toValue(location)
+      if (to === undefined) return to
+      return router.resolve(to).href
+    })
   }
 
   dFrameContent = dFrameContent ?? useVueRouterDFrameContent()
   let resolved: string | null = null
   let listener: null | ((result: string) => void) = null
-  const parentUrl = ref<string | null>(null)
+  const parentUrl = ref<string | null | undefined>(null)
 
   watch(() => toValue(location), (to) => {
     if (listener && resolved) dFrameContent.removeParentUrlListener(resolved, listener)
-    parentUrl.value = null
-    resolved = router.resolve(to).href
-    listener = (result: string) => { parentUrl.value = result }
-    dFrameContent.addParentUrlListener(resolved, listener)
+    if (to === undefined) {
+      parentUrl.value = to
+    } else {
+      parentUrl.value = null
+      resolved = router.resolve(to).href
+      listener = (result: string) => { parentUrl.value = result }
+      dFrameContent.addParentUrlListener(resolved, listener)
+    }
   }, { immediate: true })
 
   onScopeDispose(() => {
