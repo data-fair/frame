@@ -5,12 +5,14 @@ import { toValue, ref, watch, computed } from 'vue'
 import inIframe from '../utils/in-iframe.js'
 import type DFrameContent from '../DFrameContent.js'
 
+const ssr = typeof window === 'undefined'
+
 export const useParentUrl = (
   location: MaybeRefOrGetter<RouteLocationRaw>,
   router: Router,
   dFrameContent?: DFrameContent
 ) => {
-  if (!inIframe) {
+  if (ssr || !inIframe) {
     return computed(() => router.resolve(toValue(location)).href)
   }
 
