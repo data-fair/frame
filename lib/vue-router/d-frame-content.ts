@@ -34,7 +34,7 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
   return dFrameContent
 }
 
-export const vueRouterDFrameContentKey = Symbol('vue-router-d-frame-content')
+export const vueRouterDFrameContentKey = Symbol.for('vue-router-d-frame-content')
 export function createVueRouterDFrameContent (router: Router, options?: VueRouterDFrameContentOptions) {
   const dFrameContent = vueRouterDFrameContent(router, options)
   return {
