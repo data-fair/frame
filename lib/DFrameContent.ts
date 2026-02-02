@@ -258,6 +258,7 @@ export default class DFrameContent {
     let max = 0
     for (const element of elements) {
       const dataAttribute = element.getAttribute('data-iframe-height')
+      if (dataAttribute === 'false' || dataAttribute === 'no') continue
       const bottomWithoutOffset = element.getBoundingClientRect().bottom +
         parseFloat(getComputedStyle(element).getPropertyValue('margin-bottom'))
       const bottom = dataAttribute ? (bottomWithoutOffset + parseFloat(dataAttribute)) : bottomWithoutOffset
