@@ -1,5 +1,5 @@
 import { onScopeDispose, type MaybeRefOrGetter } from 'vue'
-import type { Router, RouteLocationRaw } from './router-type.js'
+import type { RouteLocationRaw, Router } from 'vue-router'
 import { useVueRouterDFrameContent } from './d-frame-content.js'
 import { toValue, ref, watch, computed } from 'vue'
 import inIframe from '../utils/in-iframe.js'

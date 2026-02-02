@@ -1,6 +1,6 @@
 import { type Ref, onScopeDispose, toRef, reactive } from 'vue'
 import type DFrameContent from '../DFrameContent.js'
-import type { Router } from '../vue-router/router-type.js'
+import type { Router } from 'vue-router'
 
 export const useDFrameParentUrls = (dFrameContent: DFrameContent, router?: Router) => {
   console.warn('useDFrameParentUrls is deprecated, it is replaced by useParentUrl from @data-fair/frame/vue-router/use-parent-url.js')
