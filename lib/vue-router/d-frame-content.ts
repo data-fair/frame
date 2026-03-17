@@ -1,6 +1,7 @@
 import { type App, inject } from 'vue'
 import DFrameContent, { type DFrameContentOptions } from '../DFrameContent.js'
 import type { Router } from 'vue-router'
+import { getRouterBase } from './util.js'
 
 type VueRouterDFrameContentOptions = Omit<DFrameContentOptions, 'updateSrc'>
 
@@ -11,8 +12,7 @@ export function vueRouterDFrameContent (router: Router, options?: VueRouterDFram
   dFrameContent = new DFrameContent({
     ...options,
     updateSrc: (src: string, instance: DFrameContent) => {
-      // @ts-ignore vue-router v2
-      const base = router.options?.base ?? router.options.history?.base as string | undefined
+      const base = getRouterBase(router)
       if (base === null || base === undefined) {
         instance.log('error', 'failed to access base path in router (no router.options.base nor router.options.history.base)', router)
       } else {

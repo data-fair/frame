@@ -1,5 +1,6 @@
 import { type DFrameElement, type StateChangeAdapter } from '../DFrameElement.js'
 import type { Router } from 'vue-router'
+import { getRouterBase } from './util.js'
 
 class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
   router: Router
@@ -8,8 +9,7 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
   }
 
   stateChange (action: 'push' | 'replace', newUrl: URL, element: DFrameElement): void {
-    // @ts-ignore vue-router v2
-    const base = this.router.options?.base ?? this.router.options.history?.base as string | undefined
+    const base = getRouterBase(this.router)
     if (base === null || base === undefined) {
       throw new Error('failed to access base path in router (no router.options.base nor router.options.history.base)')
     }

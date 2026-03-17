@@ -1,6 +1,7 @@
 import DFrameContent from '../DFrameContent.js'
 import type { Router } from 'vue-router'
 import { applySearchParams } from '../vue-reactive/util.js'
+import { getRouterBase } from '../vue-router/util.js'
 
 export type VIframeOptions = {
   router?: Router,
@@ -23,8 +24,7 @@ const dFrameContent = new DFrameContent({
 
     const router = vIframeOptions?.router
     if (router) {
-      // @ts-ignore vue-router v2
-      const base = router.options?.base ?? router.options.history?.base
+      const base = getRouterBase(router)
       if (base === null || base === undefined) {
         instance.log('error', 'failed to access base path in router (no router.options.base nor router.options.history.base)', router)
       } else {
