@@ -1,5 +1,5 @@
 import DFrameContent from '../DFrameContent.js'
-import type { Router } from 'vue-router'
+import type { Router } from '../vue-router/util.js'
 import { applySearchParams } from '../vue-reactive/util.js'
 import { getRouterBase } from '../vue-router/util.js'
 

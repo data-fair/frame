@@ -1,5 +1,5 @@
 import { type DFrameElement, type StateChangeAdapter } from '../DFrameElement.js'
-import type { Router } from 'vue-router'
+import type { Router } from './util.js'
 import { getRouterBase } from './util.js'
 
 class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {

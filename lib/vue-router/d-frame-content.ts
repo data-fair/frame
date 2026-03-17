@@ -1,6 +1,6 @@
 import { type App, inject } from 'vue'
 import DFrameContent, { type DFrameContentOptions } from '../DFrameContent.js'
-import type { Router } from 'vue-router'
+import type { Router } from './util.js'
 import { getRouterBase } from './util.js'
 
 type VueRouterDFrameContentOptions = Omit<DFrameContentOptions, 'updateSrc'>
