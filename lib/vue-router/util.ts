@@ -7,10 +7,10 @@ export type Router = {
     base?: string
     history?: { base?: string }
   }
-  push: (to: RouteLocationRaw5) => Promise<void>
-  replace: (to: RouteLocationRaw5) => Promise<void>
+  push: (to: RouteLocationRaw5) => Promise<any>
+  replace: (to: RouteLocationRaw5) => Promise<any>
   resolve: (to: RouteLocationRaw5) => { href: string }
-  afterEach: (callback: () => void) => void
+  afterEach: (callback: () => any) => any
 }
 
 export type RouteLocationRaw = RouteLocationRaw5
