@@ -312,6 +312,10 @@ export class DFrameElement extends HTMLElement {
     this.iframeElement?.contentWindow?.postMessage(message, '*')
   }
 
+  updateParsedSyncParams () {
+    this.parsedSyncParams = this.syncParams !== null ? parseSyncParams(this.syncParams || '*') : undefined
+  }
+
   updateSrc () {
     if (!this.connected) return
 
@@ -478,7 +482,7 @@ export class DFrameElement extends HTMLElement {
     this.resizeObserver.observe(this)
     window.addEventListener('message', this.boundOnMessage)
 
-    if (this.syncParams !== null) this.parsedSyncParams = parseSyncParams(this.syncParams || '*')
+    this.updateParsedSyncParams()
 
     this.updateStyle()
     this.updateIframeExtraAttrs()
@@ -505,7 +509,10 @@ export class DFrameElement extends HTMLElement {
     this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'src') this.updateSrc()
     if (name === 'height') this.updateStyle()
-    if (name === 'sync-params') this.updateSrc()
+    if (name === 'sync-params') {
+      this.updateParsedSyncParams()
+      this.updateSrc()
+    }
     if (name === 'sync-path') this.updateSrc()
     if (name === 'reload') {
       if (!this.currentChildSrc) {
