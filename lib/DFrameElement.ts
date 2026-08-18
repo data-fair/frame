@@ -6,7 +6,8 @@ import { isVIframeUiNotif, convertVIframeUiNotif } from './v-iframe-compat/ui-no
 
 export interface StateChangeAdapter {
   stateChange (action: 'push' | 'replace', newUrl: URL, element: DFrameElement): void,
-  onStateChange (callback: () => void): void
+  // onStateChange should return a function to unregister the listener
+  onStateChange (callback: () => void): () => void
 }
 
 class WindowStateChangeAdapter implements StateChangeAdapter {
@@ -16,13 +17,14 @@ class WindowStateChangeAdapter implements StateChangeAdapter {
     if (action === 'push') window.history.pushState(window.history.state, '', newUrl)
   }
 
-  onStateChange (callback: () => void): void {
+  onStateChange (callback: () => void): () => void {
     // this is only partial, for a full implementation we would have to monkeypatch window.history
     // I chose to do it in the child but not here
     // therefore support of dynamic changes performed through the history api requires an adapter
     // the idea being that the child makes itself wholly compatible with d-frame and changes its navigation logic to fit it
     // but the parent should be left as untouched as possible and uses d-frame as a black box (custom element)
     window.addEventListener('popstate', callback)
+    return () => { window.removeEventListener('popstate', callback) }
   }
 }
 
@@ -172,6 +174,7 @@ export class DFrameElement extends HTMLElement {
   private resizeObserver: ResizeObserver
   private boundOnMessage: (e: MessageEvent) => void = (e) => this.onMessage(e)
   private mouseEventListeners: { [key: string]: (e: any) => void } = {}
+  private stopOnStateChange: (() => void) | undefined
   private parentUrlListeners: Record<string, string> = {}
 
   get actualAspectRatio () {
@@ -477,7 +480,7 @@ export class DFrameElement extends HTMLElement {
     this.connected = true
 
     if (this.adapter.onStateChange) {
-      this.adapter.onStateChange(() => { this.updateSrc() })
+      this.stopOnStateChange = this.adapter.onStateChange(() => { this.updateSrc() })
     }
     this.resizeObserver.observe(this)
     window.addEventListener('message', this.boundOnMessage)
@@ -494,6 +497,8 @@ export class DFrameElement extends HTMLElement {
     this.log('debug', 'disconnected')
     this.resizeObserver.disconnect()
     window.removeEventListener('message', this.boundOnMessage)
+    this.stopOnStateChange?.()
+    this.stopOnStateChange = undefined
     for (const [eventType, listener] of Object.entries(this.mouseEventListeners)) {
       document.removeEventListener(eventType, listener, true)
       delete this.mouseEventListeners[eventType]
