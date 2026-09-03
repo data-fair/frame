@@ -24,8 +24,8 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
     if (action === 'replace') this.router.replace(newRoute)
   }
 
-  onStateChange (callback: () => void): void {
-    this.router.afterEach(callback)
+  onStateChange (callback: () => void): () => void {
+    return this.router.afterEach(callback)
   }
 }
 

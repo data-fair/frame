@@ -13,8 +13,8 @@ class VueReactiveDFrameStateChangeAdapter implements StateChangeAdapter {
     applySearchParams(this.reactiveParams, newUrl.searchParams)
   }
 
-  onStateChange (callback: () => void): void {
-    watch(this.reactiveParams, callback)
+  onStateChange (callback: () => void): () => void {
+    return watch(this.reactiveParams, callback)
   }
 }
 
