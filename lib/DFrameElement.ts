@@ -482,6 +482,10 @@ export class DFrameElement extends HTMLElement {
     if (this.adapter.onStateChange) {
       this.stopOnStateChange = this.adapter.onStateChange(() => { this.updateSrc() })
     }
+    // measure synchronously: the observer only fires after the next layout, and the frame
+    // would be painted at the height of its loading slot in between
+    this.width = this.getBoundingClientRect().width
+    this.updateAspectRatioHeight()
     this.resizeObserver.observe(this)
     window.addEventListener('message', this.boundOnMessage)
 
