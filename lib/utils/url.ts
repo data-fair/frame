@@ -17,17 +17,6 @@ export function getUrlRelativePath (srcUrl: URL, currentUrl: URL) {
   return currentUrl.pathname.replace(srcDirectory, '')
 }
 
-// the payloads of messages come from another window, they can be anything
-export function isUrl (value: unknown): value is string {
-  if (typeof value !== 'string') return false
-  try {
-    new URL(value) // eslint-disable-line no-new
-    return true
-  } catch {
-    return false
-  }
-}
-
 // a URL that can be navigated to or used as a link without running code (no javascript:, data:...)
 export function isHttpUrl (value: unknown, base?: string): value is string {
   if (typeof value !== 'string') return false

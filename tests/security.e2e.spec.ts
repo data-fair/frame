@@ -104,4 +104,19 @@ test.describe('hostile messages', () => {
     const relativeChild = await initializedChild(page)
     expect(new URL(relativeChild.url()).pathname).toBe(fixture('child.html'))
   })
+
+  test('should never give the iframe a src that is not http(s) sent by the child', async ({ page }) => {
+    // the iframe is reloaded from the last src of the child (reload attribute, element moved):
+    // a javascript: src would run in the parent when the new iframe starts from about:blank
+    const frame = await mountFrame(page, { src: crossOriginFixture(page, 'child.html') })
+    const child = await initializedChild(page)
+    await child.evaluate(() => {
+      window.parent.postMessage(['df-child', 'stateChange', 'replace', 'javascript:parent.document.body.dataset.pwned="1"'], '*')
+      ;(window as any).dFrameContent.sendMessage('after')
+    })
+    await expect.poll(() => events(page, 'message')).toEqual(['after'])
+    await frame.evaluate(el => el.setAttribute('reload', '1'))
+    expect(await page.locator('d-frame iframe').getAttribute('src')).toMatch(/^http:/)
+    expect(await page.evaluate(() => document.body.dataset.pwned)).toBeUndefined()
+  })
 })

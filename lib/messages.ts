@@ -1,4 +1,4 @@
-import { isUrl } from './utils/url.js'
+import { isHttpUrl } from './utils/url.js'
 
 export type MouseEventMessage = ['df-global', 'mouse', MouseEvent['type'], Pick<MouseEvent, 'altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey'>]
 
@@ -44,8 +44,9 @@ export function isHeightMessage (message: any): message is HeightMessage {
 export function isReinitHeightMessage (message: any): message is ReinitHeightMessage {
   return message[0] === 'df-child' && message[1] === 'reinit-height'
 }
+// the URL of the child becomes the src of the iframe when it is reloaded: a javascript: URL would run in the parent
 export function isStateChangeMessage (message: any): message is StateChangeMessage {
-  return message[0] === 'df-child' && message[1] === 'stateChange' && (message[2] === 'push' || message[2] === 'replace') && isUrl(message[3])
+  return message[0] === 'df-child' && message[1] === 'stateChange' && (message[2] === 'push' || message[2] === 'replace') && isHttpUrl(message[3])
 }
 export function isCustomMessage (message: any): message is CustomMessage {
   return message[0] === 'df-child' && message[1] === 'custom'
@@ -54,7 +55,7 @@ export function isNotifMessage (message: any): message is NotifMessage {
   return message[0] === 'df-child' && message[1] === 'notif'
 }
 export function isAddParentUrlListenerMessage (message: any): message is AddParentUrlListenerMessage {
-  return message[0] === 'df-child' && message[1] === 'addParentUrlListener' && isUrl(message[2])
+  return message[0] === 'df-child' && message[1] === 'addParentUrlListener' && isHttpUrl(message[2])
 }
 export function isRemoveParentUrlListenerMessage (message: any): message is RemoveParentUrlListenerMessage {
   return message[0] === 'df-child' && message[1] === 'removeParentUrlListener'
