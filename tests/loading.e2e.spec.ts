@@ -31,8 +31,8 @@ test.describe('loading status', () => {
   test('should wait for the ready message instead of the load event with ready-message', async ({ page }) => {
     await mountFrame(page, { src: fixture('child.html'), 'ready-message': '' })
     const child = await initializedChild(page)
+    // ready would be emitted by the same listener as iframe-load
     await expect.poll(() => events(page, 'iframe-load')).toHaveLength(1)
-    await page.waitForTimeout(200)
     expect(await events(page, 'ready')).toHaveLength(0)
     await child.evaluate(() => { (window as any).dFrameContent.ready() })
     await expect.poll(() => events(page, 'ready')).toHaveLength(1)
@@ -45,8 +45,8 @@ test.describe('loading status', () => {
 
   test('should not be ready on the load event in resize mode, the frame height is not known yet', async ({ page }) => {
     await mountFrame(page, { src: fixture('plain.html'), resize: '' })
+    // ready would be emitted by the same listener as iframe-load
     await expect.poll(() => events(page, 'iframe-load')).toHaveLength(1)
-    await page.waitForTimeout(200)
     expect(await events(page, 'ready')).toHaveLength(0)
   })
 
@@ -55,5 +55,29 @@ test.describe('loading status', () => {
     page.on('pageerror', err => errors.push(err.message))
     await page.evaluate(() => { document.body.appendChild(document.createElement('d-frame')) })
     await expect.poll(() => errors).toEqual(['src is a required attribute'])
+  })
+
+  test('should emit ready only once in resize mode, whatever the number of heights', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), resize: '' })
+    const child = await initializedChild(page)
+    await expect.poll(() => events(page, 'ready')).toHaveLength(1)
+    await child.evaluate(() => {
+      document.getElementById('content')!.style.height = '300px'
+      document.body.appendChild(document.createElement('span'))
+    })
+    await expect.poll(() => page.locator('d-frame .d-frame-wrapper').evaluate(el => el.getBoundingClientRect().height)).toBe(300)
+    expect(await events(page, 'ready')).toHaveLength(1)
+  })
+
+  test('should load even if the storage of the page is blocked', async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', err => errors.push(err.message))
+    // like a sandboxed parent or blocked cookies: reading localStorage throws a SecurityError
+    await page.evaluate(() => {
+      Object.defineProperty(window, 'localStorage', { get () { throw new DOMException('denied', 'SecurityError') } })
+    })
+    await mountFrame(page, { src: fixture('plain.html'), height: '100px' })
+    await expect.poll(() => events(page, 'ready')).toHaveLength(1)
+    expect(errors).toEqual([])
   })
 })

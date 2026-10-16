@@ -153,3 +153,28 @@ test.describe('sync-params round trips', () => {
     assert.equal(getChildSrcShort('/child?page=1', new URL(backHref!).search, '*'), 'http://te.st/child?page=1')
   })
 })
+
+test.describe('sync-params robustness', () => {
+  test('should ignore spaces around the patterns', () => {
+    assert.equal(
+      getChildSrcShort('/child', 'page=1&size=10', 'page, size'),
+      'http://te.st/child?page=1&size=10'
+    )
+  })
+
+  test('should not reflect a child on another origin in the path of the parent', () => {
+    const parentUrl = getParentUrl('http://te.st/dir/', 'http://evil.test/logout', 'http://te.st/base/', undefined, '/base/')
+    assert.equal(parentUrl, null)
+  })
+
+  test('should not need Iterator helpers (missing in Safari < 18.4)', () => {
+    const iteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(new URLSearchParams().keys()))
+    const toArray = iteratorPrototype.toArray
+    delete iteratorPrototype.toArray
+    try {
+      assert.equal(getParentHrefShort('/child', '/child?a=2', '/parent?a=1&b=1', '*'), 'http://te.st/parent?a=2')
+    } finally {
+      if (toArray) iteratorPrototype.toArray = toArray
+    }
+  })
+})

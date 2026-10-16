@@ -20,8 +20,10 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
     let newRoute = newUrl.href.replace(urlPrefix, '')
     if (!newRoute.startsWith('/')) newRoute = '/' + newRoute
     element.log('debug', 'apply state change on vue.router', action, newRoute)
-    if (action === 'push') this.router.push(newRoute)
-    if (action === 'replace') this.router.replace(newRoute)
+    // a guard that throws rejects the navigation: the parent stays on its URL
+    const onError = (err: unknown) => element.log('error', 'failed to apply state change on vue.router', err)
+    if (action === 'push') this.router.push(newRoute).catch(onError)
+    if (action === 'replace') this.router.replace(newRoute).catch(onError)
   }
 
   onStateChange (callback: () => void): () => void {

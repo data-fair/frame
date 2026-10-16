@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>d-frame test middle page</title>
+  <style>body { margin: 0; }</style>
+</head>
+<body>
+  <!-- both a child and a parent, like a dashboard embedded in a portal that embeds applications -->
+  <div id="container" data-iframe-height></div>
+  <script type="module">
+    import '/lib/d-frame.ts'
+    import DFrameContent from '/lib/DFrameContent.ts'
+
+    window.dFrameContent = new DFrameContent()
+    const frame = document.createElement('d-frame')
+    frame.setAttribute('src', '/tests/fixtures/child.html')
+    frame.setAttribute('sync-params', '')
+    frame.setAttribute('resize', '')
+    document.getElementById('container').appendChild(frame)
+  </script>
+</body>
+</html>

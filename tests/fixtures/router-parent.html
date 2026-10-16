@@ -19,9 +19,11 @@
     // tests set these to mimic async middlewares of the parent app (nuxt, auth checks...)
     window.guardDelay = 0
     window.guardAbort = false
+    window.guardThrow = false
     router.beforeEach(async () => {
       if (window.guardDelay) await new Promise(resolve => setTimeout(resolve, window.guardDelay))
       if (window.guardAbort) return false
+      if (window.guardThrow) throw new Error('guard error')
     })
     window.navigations = []
     router.afterEach((to, _from, failure) => { window.navigations.push({ to: to.fullPath, failure: failure?.type ?? null }) })

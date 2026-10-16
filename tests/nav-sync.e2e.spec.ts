@@ -1,12 +1,8 @@
 import { test, expect, type Page } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, events, fixture, crossOriginFixture } from './support.ts'
+import { openParent, mountFrame, initializedChild, childUrl, events, fixture, crossOriginFixture } from './support.ts'
 
 const parentSearch = (page: Page) => new URL(page.url()).search
 const iframeSrc = (page: Page) => page.locator('d-frame').last().locator('iframe').getAttribute('src')
-const childUrl = async (page: Page) => {
-  const iframe = await page.locator('d-frame').last().locator('iframe').elementHandle()
-  return (await iframe!.contentFrame())!.url()
-}
 
 test.describe('navigation syncing with the window adapter', () => {
   test('should apply the params of the parent to the initial src', async ({ page }) => {

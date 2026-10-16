@@ -14,8 +14,12 @@
     window.received = []
     window.addEventListener('message', (e) => { if (e.source === window.parent) window.received.push(e.data) })
     window.mouseEvents = []
+    window.mouseModifiers = []
     for (const type of ['click', 'mousedown', 'mouseup', 'dblclick']) {
-      document.addEventListener(type, () => window.mouseEvents.push(type))
+      document.addEventListener(type, (e) => {
+        window.mouseEvents.push(type)
+        window.mouseModifiers.push({ altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey })
+      })
     }
 
     window.dFrameContent = new DFrameContent()

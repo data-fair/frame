@@ -45,4 +45,15 @@ test.describe('mouse events', () => {
     })
     expect(posted).toBe(0)
   })
+
+  test('should transmit the modifier keys', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), 'mouse-events': 'click', height: '100px' })
+    const child = await initializedChild(page)
+    await page.mouse.move(400, 300)
+    await page.keyboard.down('Control')
+    await page.mouse.down()
+    await page.mouse.up()
+    await page.keyboard.up('Control')
+    await expect.poll(() => child.evaluate(() => (window as any).mouseModifiers)).toEqual([{ altKey: false, ctrlKey: true, shiftKey: false, metaKey: false }])
+  })
 })

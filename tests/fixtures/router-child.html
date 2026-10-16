@@ -9,7 +9,7 @@
   <div id="content" data-iframe-height></div>
   <script type="module">
     import { createRouter, createWebHistory } from 'vue-router'
-    import { effectScope, watch } from 'vue'
+    import { effectScope, ref, watch } from 'vue'
     import { vueRouterDFrameContent } from '/lib/vue-router/d-frame-content.ts'
     import { useParentUrl } from '/lib/vue-router/use-parent-url.ts'
 
@@ -26,7 +26,7 @@
     window.loadMarker = Math.random()
     window.dFrameContent = vueRouterDFrameContent(router)
     // for the tests of the composables, they need an effect scope
-    window.vue = { effectScope, watch }
+    window.vue = { effectScope, ref, watch }
     window.useParentUrl = useParentUrl
   </script>
 </body>

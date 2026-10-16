@@ -10,7 +10,7 @@ export type ParsedSyncParams = {
 export function parseSyncParams (syncParamsStr: string) {
   const syncParams: ParsedSyncParams = []
   for (const syncParam of syncParamsStr.split(',')) {
-    const [pattern = '*', append] = syncParam.split(':')
+    const [pattern = '*', append] = syncParam.trim().split(':')
     const regexpStr = '^' + escapeRegExp(pattern).replace(/\\\*/g, '(.*)') + '$'
     syncParams.push({
       regexp: new RegExp(regexpStr),
@@ -64,8 +64,8 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
 
   if (syncParams) {
     // remove existing keys that were deleted from the child
-    // use toArray instead of iterator as we mutate parentUrl in the loop
-    for (const key of parentUrl.searchParams.keys().toArray()) {
+    // copy the keys as we mutate parentUrl in the loop (not with Iterator.toArray(), missing in Safari < 18.4)
+    for (const key of Array.from(parentUrl.searchParams.keys())) {
       for (const syncParam of syncParams) {
         if (syncParam.append && !key.startsWith(syncParam.append)) continue
         const childKey = syncParam.append ? key.replace(syncParam.append, '') : key
@@ -93,8 +93,8 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
     if (syncPath === '#') {
       parentUrl.hash = path
     } else if (syncPath.startsWith('/')) {
-      // a full path is not accepted, only a path child of the base
-      if (path.startsWith('/')) return null
+      // a full path or another origin is not accepted, only a path child of the base
+      if (path.startsWith('/') || childUrl.origin !== srcUrl.origin) return null
       if (path === '') parentUrl.pathname = syncPath
       else parentUrl.pathname = new URL(path, new URL(syncPath, currentParentHref)).pathname
     } else {

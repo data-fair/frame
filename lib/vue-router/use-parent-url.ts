@@ -21,19 +21,23 @@ export const useParentUrl = (
   }
 
   dFrameContent = dFrameContent ?? useVueRouterDFrameContent()
-  let resolved: string | null = null
+  let resolved: string | null | undefined = null
   let listener: null | ((result: string) => void) = null
   const parentUrl = ref<string | null | undefined>(null)
 
   watch(() => toValue(location), (to) => {
+    const href = to === undefined ? undefined : router.resolve(to).href
+    // a getter can return a new location object for the same target: keep the listener and its result
+    if (href === resolved) return
     if (listener && resolved) dFrameContent.removeParentUrlListener(resolved, listener)
-    if (to === undefined) {
-      parentUrl.value = to
+    resolved = href
+    listener = null
+    if (href === undefined) {
+      parentUrl.value = undefined
     } else {
       parentUrl.value = null
-      resolved = router.resolve(to).href
       listener = (result: string) => { parentUrl.value = result }
-      dFrameContent.addParentUrlListener(resolved, listener)
+      dFrameContent.addParentUrlListener(href, listener)
     }
   }, { immediate: true })
 

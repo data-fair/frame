@@ -75,9 +75,46 @@ test.describe('messages', () => {
 
   test('should ignore messages sent by the parent window itself', async ({ page }) => {
     await mountFrame(page, { src: fixture('child.html') })
-    await initializedChild(page)
+    const child = await initializedChild(page)
     await page.evaluate(() => { window.postMessage(['df-child', 'custom', 'spoofed'], '*') })
-    await page.waitForTimeout(200)
-    expect(await events(page, 'message')).toEqual([])
+    // queued after the spoofed message
+    await child.evaluate(() => { (window as any).dFrameContent.sendMessage('after') })
+    await expect.poll(() => events(page, 'message')).toEqual(['after'])
+  })
+
+  test('should not send updateSrc to the child when the parent changes a param that is not synced', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), 'sync-params': 'page' })
+    const child = await initializedChild(page)
+    await page.evaluate(() => {
+      history.pushState(null, '', '?other=2')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+    // a message sent after the popstate handling: the protocol keeps the order of messages
+    await page.evaluate(() => { document.querySelector('d-frame')!.shadowRoot!.querySelector('iframe')!.contentWindow!.postMessage('barrier', '*') })
+    await expect.poll(() => child.evaluate(() => (window as any).received.at(-1))).toBe('barrier')
+    expect(await child.evaluate(() => (window as any).received.filter((m: any) => m[1] === 'updateSrc'))).toEqual([])
+  })
+
+  test('should not send stateChange to the parent when the child replaces its state with the same URL', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), 'sync-params': '' })
+    const child = await initializedChild(page)
+    await child.evaluate(() => {
+      history.replaceState({ some: 'state' }, '', window.location.href)
+      ;(window as any).dFrameContent.sendMessage('after')
+    })
+    await expect.poll(() => events(page, 'message')).toEqual(['after'])
+    expect(await page.evaluate(() => (window as any).received.filter((m: any) => m[1] === 'stateChange'))).toEqual([])
+  })
+
+  test('should not reload the child when the parent sends its current src', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), 'sync-params': '' })
+    const child = await initializedChild(page)
+    await child.evaluate(() => { (window as any).marker = 1 })
+    await page.evaluate(() => {
+      const iframe = document.querySelector('d-frame')!.shadowRoot!.querySelector('iframe')!
+      iframe.contentWindow!.postMessage(['df-parent', 'updateSrc', iframe.contentWindow!.location.href], '*')
+    })
+    await page.waitForTimeout(300)
+    expect(await child.evaluate(() => (window as any).marker)).toBe(1)
   })
 })

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, wrapperHeight, fixture } from './support.ts'
+import { openParent, mountFrame, initializedChild, wrapperHeight, events, fixture } from './support.ts'
 
 test.describe('height', () => {
   test.beforeEach(async ({ page }) => { await openParent(page) })
@@ -120,5 +120,64 @@ test.describe('height', () => {
     await page.evaluate(() => document.querySelector('d-frame')!.remove())
     await mountFrame(page, { src: fixture('plain.html'), height: '100px', scrolling: 'yes' })
     await expect(page.locator('d-frame iframe')).toHaveAttribute('scrolling', 'yes')
+  })
+
+  test('should forget the aspect ratio height when the attribute is removed', async ({ page }) => {
+    const frame = await mountFrame(page, { src: fixture('plain.html'), 'aspect-ratio': '2' })
+    await expect.poll(() => wrapperHeight(page)).toBe(400)
+    await frame.evaluate(el => el.removeAttribute('aspect-ratio'))
+    await expect(page.locator('d-frame .d-frame-wrapper')).toHaveAttribute('style', '')
+  })
+
+  test('should use the current width for the aspect ratio after a reinit-height', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), 'aspect-ratio': '2' })
+    const child = await initializedChild(page)
+    await expect.poll(() => wrapperHeight(page)).toBe(200)
+    // the aspect ratio is not maintained while the height comes from the child
+    await page.evaluate(() => { document.body.style.width = '600px' })
+    await child.evaluate(() => {
+      document.getElementById('content')!.remove()
+      ;(window as any).dFrameContent.reinitHeight()
+    })
+    await expect.poll(() => wrapperHeight(page)).toBe(300)
+  })
+
+  test('should keep the height of the child after a reinit-height message with reinit-height="no"', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), resize: '', 'reinit-height': 'no', height: '120px' })
+    const child = await initializedChild(page)
+    await expect.poll(() => wrapperHeight(page)).toBe(200)
+    await child.evaluate(() => {
+      document.getElementById('content')!.remove()
+      ;(window as any).dFrameContent.reinitHeight()
+      ;(window as any).dFrameContent.sendMessage('after')
+    })
+    await expect.poll(() => events(page, 'message')).toEqual(['after'])
+    expect(await wrapperHeight(page)).toBe(200)
+  })
+
+  test('should ignore the elements with data-iframe-height="no" or "false"', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html'), resize: '' })
+    const child = await initializedChild(page)
+    await expect.poll(() => wrapperHeight(page)).toBe(200)
+    await child.evaluate(() => {
+      for (const value of ['no', 'false']) {
+        const element = document.createElement('div')
+        element.setAttribute('data-iframe-height', value)
+        element.style.height = '500px'
+        document.body.appendChild(element)
+      }
+      const element = document.createElement('div')
+      element.setAttribute('data-iframe-height', '')
+      element.style.height = '50px'
+      document.body.appendChild(element)
+    })
+    // only the 3rd element counts, below the 2 ignored ones
+    await expect.poll(() => wrapperHeight(page)).toBe(1250)
+  })
+
+  test('should switch the scrolling of the iframe to "no" when the child sends a height in auto mode', async ({ page }) => {
+    await mountFrame(page, { src: fixture('child.html') })
+    await expect.poll(() => wrapperHeight(page)).toBe(200)
+    await expect(page.locator('d-frame iframe')).toHaveAttribute('scrolling', 'no')
   })
 })

@@ -69,4 +69,18 @@ test.describe('navigation syncing with vue-router on both sides', () => {
     await expect.poll(() => childRoute(child)).toBe('/')
     expect(await parentRoute(page)).toBe('/')
   })
+
+  test('should report a guard of the parent that throws, without an unhandled rejection', async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', err => errors.push(err.message))
+    const logs: string[] = []
+    page.on('console', msg => { if (msg.type() === 'error') logs.push(msg.text()) })
+    await mountFrame(page, { src: fixture('router-child/'), 'sync-params': '' })
+    const child = await initializedChild(page)
+    await page.evaluate(() => { (window as any).guardThrow = true })
+    await childNavigate(child, { page: '2' })
+    await expect.poll(() => logs.some(l => l.includes('failed to apply state change on vue.router'))).toBe(true)
+    expect(errors).toEqual([])
+    expect(await parentRoute(page)).toBe('/')
+  })
 })

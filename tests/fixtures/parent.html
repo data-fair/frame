@@ -11,6 +11,10 @@
 
     const eventTypes = ['ready', 'iframe-load', 'message', 'notif', 'state-change', 'iframe-message', 'click', 'mousedown', 'mouseup', 'dblclick']
 
+    // everything the children send, to assert on the protocol itself
+    window.received = []
+    window.addEventListener('message', (e) => { window.received.push(e.data) })
+
     // events are recorded with their detail so that tests can assert on the full sequence
     window.events = []
     window.eventsOf = (type) => window.events.filter(e => e.type === type).map(e => e.detail)

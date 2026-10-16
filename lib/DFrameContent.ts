@@ -2,42 +2,29 @@ import { isInitParentMessage, isMouseEventMessage, isUpdateSrcMessage, type Mous
 import inIframe from './utils/in-iframe.js'
 import { isHttpUrl } from './utils/url.js'
 
+// prefixed variants are not listed: browsers do not fire them when there is an unprefixed listener
 const windowEventTypes = [
   'animationstart',
-  'webkitAnimationStart',
   'animationiteration',
-  'webkitAnimationIteration',
   'animationend',
-  'webkitAnimationEnd',
   'input',
   'mouseup',
   'mousedown',
   'orientationchange',
   'afterprint',
   'beforeprint',
-  'readystatechange',
   'touchstart',
   'touchend',
   'touchcancel',
   'transitionstart',
-  'webkitTransitionStart',
-  'MSTransitionStart',
-  'oTransitionStart',
-  'otransitionstart', 'transitioniteration',
-  'webkitTransitionIteration',
-  'MSTransitionIteration',
-  'oTransitionIteration',
-  'otransitioniteration', 'transitionend',
-  'webkitTransitionEnd',
-  'MSTransitionEnd',
-  'oTransitionEnd',
-  'otransitionend', 'resize'
+  'transitionend',
+  'resize'
 ]
 
 export type DFrameContentOptions = { updateSrc?: (src: string, instance: DFrameContent) => void }
 
 declare global {
-  interface Window { __d_frame__content: DFrameContent }
+  interface Window { __d_frame__content?: DFrameContent }
 }
 
 export default class DFrameContent {
@@ -114,7 +101,7 @@ export default class DFrameContent {
           window.location.href = newSrc
         }
       }
-      if (isMouseEventMessage(message)) {
+      if (isMouseEventMessage(message) && this.mouseEventTypes.includes(message[2])) {
         this.applySyncedMouseEvent(message)
       }
       if (isParentUrlMessage(message)) {
@@ -185,9 +172,11 @@ export default class DFrameContent {
   }
 
   private currentSyncedMouseEvents: Set<MouseEvent['type']> = new Set()
+  private mouseEventTypes: MouseEvent['type'][] = []
 
   private initMouseEvents (types: MouseEvent['type'][]) {
     this.log('debug', 'initMouseEvents')
+    this.mouseEventTypes = types
     for (const eventType of types) {
       document.addEventListener(eventType, (e) => {
         if (!(e instanceof MouseEvent)) return

@@ -30,6 +30,8 @@ export const childFrame = async (page: Page): Promise<Frame> => {
   return frame
 }
 
+export const childUrl = async (page: Page) => (await childFrame(page)).url()
+
 // wait for the child to be loaded and initialized by the handshake with the parent
 export const initializedChild = async (page: Page) => {
   const frame = await childFrame(page)

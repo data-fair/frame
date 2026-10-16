@@ -66,7 +66,7 @@ export class DFrameElement extends HTMLElement {
 
   get src () { return this.getAttribute('src') as string }
   set src (value) { this.setAttribute('src', value) }
-  get fullSrc () { return this.src.startsWith('/') ? (window.location.origin + this.src) : this.src }
+  get fullSrc () { return new URL(this.src, window.location.href).href }
 
   get scrolling () { return this.getAttribute('scrolling') as string }
   set scrolling (value) { this.setAttribute('scrolling', value) }
@@ -244,6 +244,8 @@ export class DFrameElement extends HTMLElement {
             src: this.currentChildSrc
           }])
           this.childInitialized = true
+          // a new document starts in the iframe, it registers its own parent URL listeners
+          this.parentUrlListeners = {}
         }
         if (isHeightMessage(message)) {
           this.resizedHeight = message[2]
@@ -255,6 +257,8 @@ export class DFrameElement extends HTMLElement {
         }
         if (isReinitHeightMessage(message) && this.reinitHeight === 'on-message') {
           this.resizedHeight = undefined
+          // not maintained while the height came from the child
+          this.updateAspectRatioHeight()
           this.updateStyle()
         }
         if (isStateChangeMessage(message)) {
@@ -290,7 +294,7 @@ export class DFrameElement extends HTMLElement {
           this.dispatchEvent(new CustomEvent('ready'))
           this.updateStyle()
         }
-        if (isMouseEventMessage(message)) {
+        if (isMouseEventMessage(message) && this.mouseEvents?.includes(message[2])) {
           this.applySyncedMouseEvent(message)
         }
         if (isAddParentUrlListenerMessage(message)) {
@@ -468,7 +472,12 @@ export class DFrameElement extends HTMLElement {
   /* standard custom element callbacks */
   connectedCallback () {
     if (!this.debug) {
-      const globalDebug = window.localStorage.getItem('debug')
+      let globalDebug: string | null = null
+      try {
+        globalDebug = window.localStorage.getItem('debug')
+      } catch {
+        // storage is blocked in some contexts (sandboxed parent, blocked cookies)
+      }
       if (globalDebug) {
         const debugParts = globalDebug.split(',')
         if (debugParts.includes('d-frame') || debugParts.includes('d-frame:' + this.id)) this.debug = true
@@ -482,10 +491,12 @@ export class DFrameElement extends HTMLElement {
     if (this.adapter.onStateChange) {
       this.stopOnStateChange = this.adapter.onStateChange(() => { this.updateSrc() })
     }
-    // measure synchronously: the observer only fires after the next layout, and the frame
-    // would be painted at the height of its loading slot in between
-    this.width = this.getBoundingClientRect().width
-    this.updateAspectRatioHeight()
+    if (this.aspectRatio !== null && !this.height) {
+      // measure synchronously: the observer only fires after the next layout, and the frame
+      // would be painted at the height of its loading slot in between
+      this.width = this.getBoundingClientRect().width
+      this.updateAspectRatioHeight()
+    }
     this.resizeObserver.observe(this)
     window.addEventListener('message', this.boundOnMessage)
 
@@ -499,6 +510,11 @@ export class DFrameElement extends HTMLElement {
 
   disconnectedCallback () {
     this.log('debug', 'disconnected')
+    this.connected = false
+    // the iframe is reloaded from its src attribute when the element is connected again:
+    // it must be the state reached by the child, then the child does the handshake again
+    this.childInitialized = false
+    if (this.currentChildSrc) this.iframeElement.setAttribute('src', this.currentChildSrc)
     this.resizeObserver.disconnect()
     window.removeEventListener('message', this.boundOnMessage)
     this.stopOnStateChange?.()
@@ -512,7 +528,11 @@ export class DFrameElement extends HTMLElement {
   /* reflected attributes */
   static get observedAttributes () { return ['src', 'aspect-ratio', 'height', 'sync-params', 'sync-path', 'reload'] }
   attributeChangedCallback (name: string, oldValue: any, newValue: any) {
-    if (name === 'aspect-ratio') this.updateAspectRatioHeight()
+    if (name === 'aspect-ratio') {
+      this.updateAspectRatioHeight()
+      // also when the attribute is removed
+      this.updateStyle()
+    }
     // if (name.startsWith('iframe-')) this.updateIframeExtraAttrs()
     if (!this.connected) return
     this.log('debug', 'attribute change', name, oldValue, newValue)
