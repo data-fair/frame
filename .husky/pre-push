@@ -1,1 +1,1 @@
-npm run lint && npx playwright test --project=unit --project=e2e && npm run build
+npm run lint && npx playwright test && npm run build

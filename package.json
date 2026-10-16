@@ -20,16 +20,16 @@
     "vue-router": "^5.0.0"
   },
   "scripts": {
-    "check-types": "tsc",
+    "check-types": "tsc --noEmit && tsc -p tests",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "dev-zellij": "zellij --layout .zellij.kdl",
     "prepare": "husky",
-    "test": "playwright test",
+    "test": "playwright test && playwright test -c playwright.doc.config.ts",
     "test:unit": "playwright test --project=unit",
     "test:e2e": "playwright test --project=e2e",
-    "test:doc": "playwright test --project=doc",
-    "build": "rm -f lib/*.d.ts && rm -f lib/*.js && tsc -p tsconfig.json && rm -rf dist && vite -c vite.config.d-frame.js build && vite -c vite.config.d-frame-content.js build && vite -c vite.config.v-iframe-compat-d-frame-content.js build",
+    "test:doc": "playwright test -c playwright.doc.config.ts",
+    "build": "find lib \\( -name '*.js' -o -name '*.d.ts' \\) -delete && tsc -p tsconfig.json && rm -rf dist && vite -c vite.config.d-frame.js build && vite -c vite.config.d-frame-content.js build && vite -c vite.config.v-iframe-compat-d-frame-content.js build",
     "prepublishOnly": "npm run lint && npm run test && npm run build",
     "publish:main": "cd doc && npm run build:main && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t main",
     "publish:latest": "cd doc && npm run build:latest && cd .. && gh-pages-multi deploy -v -s doc/.output/public -t latest"
