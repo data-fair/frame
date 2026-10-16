@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>d-frame test parent</title>
+  <style>body { margin: 0; width: 800px; }</style>
+</head>
+<body>
+  <script type="module">
+    import '/lib/d-frame.ts'
+
+    const eventTypes = ['ready', 'iframe-load', 'message', 'notif', 'state-change', 'iframe-message', 'click', 'mousedown', 'mouseup', 'dblclick']
+
+    // events are recorded with their detail so that tests can assert on the full sequence
+    window.events = []
+    window.eventsOf = (type) => window.events.filter(e => e.type === type).map(e => e.detail)
+
+    // create a d-frame with the given attributes (and properties like adapter) and append it to the body
+    window.mountFrame = (attrs = {}, props = {}) => {
+      const frame = document.createElement('d-frame')
+      for (const [key, value] of Object.entries(attrs)) frame.setAttribute(key, value)
+      Object.assign(frame, props)
+      for (const type of eventTypes) {
+        frame.addEventListener(type, (e) => window.events.push({ type, detail: e.detail ?? null, id: frame.id }))
+      }
+      document.body.appendChild(frame)
+      return frame
+    }
+    window.parentReady = true
+  </script>
+</body>
+</html>

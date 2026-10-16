@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>d-frame test vue-router child</title>
+  <style>body { margin: 0; } #content { height: 200px; }</style>
+</head>
+<body>
+  <div id="content" data-iframe-height></div>
+  <script type="module">
+    import { createRouter, createWebHistory } from 'vue-router'
+    import { effectScope, watch } from 'vue'
+    import { vueRouterDFrameContent } from '/lib/vue-router/d-frame-content.ts'
+    import { useParentUrl } from '/lib/vue-router/use-parent-url.ts'
+
+    // an embedded application that keeps its state in its URL, like app-calendar
+    const router = createRouter({
+      history: createWebHistory('/tests/fixtures/router-child/'),
+      routes: [{ path: '/:path(.*)*', component: {} }]
+    })
+    window.navigations = []
+    router.afterEach((to) => { window.navigations.push(to.fullPath) })
+    await router.replace(router.options.history.location)
+    window.router = router
+    // a full reload would reset this marker, tests use it to check that navigation stayed in the app
+    window.loadMarker = Math.random()
+    window.dFrameContent = vueRouterDFrameContent(router)
+    // for the tests of the composables, they need an effect scope
+    window.vue = { effectScope, watch }
+    window.useParentUrl = useParentUrl
+  </script>
+</body>
+</html>

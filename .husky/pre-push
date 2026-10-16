@@ -1,1 +1,1 @@
-npm run prepublishOnly
+npm run lint && npx playwright test --project=unit --project=e2e && npm run build

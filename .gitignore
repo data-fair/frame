@@ -4,3 +4,5 @@ node_modules
 /lib/**/*.js
 /lib/**/*.d.ts
 /dist
+/tests/output
+/playwright-report
