@@ -25,9 +25,10 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
   }
 
   onStateChange (callback: () => void): () => void {
-    // a cancelled or aborted navigation leaves the parent on its old URL: syncing the child from it
-    // would send back stale params while the child has already moved on (fast clicks in the child)
-    return this.router.afterEach((_to, _from, failure) => { if (!failure) callback() })
+    // a cancelled navigation is superseded by a newer one: syncing the child from the parent URL
+    // would send back stale params while the child has already moved on (fast clicks in the child).
+    // An aborted one (4 = NavigationFailureType.aborted) was refused by a guard: the child must go back to the parent URL
+    return this.router.afterEach((_to, _from, failure) => { if (!failure || failure.type === 4) callback() })
   }
 }
 

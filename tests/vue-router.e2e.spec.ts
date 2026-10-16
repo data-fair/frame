@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Frame } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, fixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, fixture } from './support.ts'
 
 const parentRoute = (page: Page) => page.evaluate(() => (window as any).router.currentRoute.value.fullPath)
 const childRoute = (child: Frame) => child.evaluate(() => (window as any).router.currentRoute.value.fullPath)
@@ -41,7 +41,6 @@ test.describe('navigation syncing with vue-router on both sides', () => {
   })
 
   test('should not lose fast navigations of the child when the parent has async guards', async ({ page }) => {
-    knownBug('a cancelled navigation of the parent still triggers afterEach and syncs the child back to the stale parent URL (fixed by #4)')
     await page.evaluate(() => { (window as any).guardDelay = 150 })
     await mountFrame(page, { src: fixture('router-child/'), 'sync-params': '' })
     const child = await initializedChild(page)
