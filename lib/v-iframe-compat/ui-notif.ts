@@ -13,7 +13,7 @@ export type PartialUiNotif = string | {
 export type VIframeUiNotif = { vIframe: true, uiNotification: PartialUiNotif }
 
 export function isVIframeUiNotif (message: any): message is VIframeUiNotif {
-  return message.vIframe === true && message.uiNotification !== undefined
+  return message?.vIframe === true && message.uiNotification !== undefined
 }
 
 export function convertVIframeUiNotif (notif: PartialUiNotif): Notif {

@@ -1,5 +1,4 @@
 import { test } from '@playwright/test'
-import { knownBug } from './support.ts'
 import assert from 'node:assert/strict'
 import { getChildSrc, getParentUrl, parseSyncParams } from '../lib/utils/sync-params.ts'
 
@@ -146,7 +145,6 @@ test.describe('sync-params utility functions', () => {
 
 test.describe('sync-params round trips', () => {
   test('should reflect a child param going back to its value in src', () => {
-    knownBug('a child param equal to its value in src is skipped, the parent keeps its previous value')
     // the child moves from page=1 (its src) to page=2, then back to page=1
     const parentHref = getParentHrefShort('/child?page=1', '/child?page=2', '/parent', '*')
     assert.equal(parentHref, 'http://te.st/parent?page=2')

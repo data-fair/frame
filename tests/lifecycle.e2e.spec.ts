@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, childFrame, events, fixture, crossOriginFixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, childFrame, events, fixture, crossOriginFixture } from './support.ts'
 
 const childUrl = async (page: Page) => (await childFrame(page)).url()
 
@@ -60,7 +60,6 @@ test.describe('lifecycle', () => {
   })
 
   test('should reload a cross-origin child when the reload attribute changes', async ({ page }) => {
-    knownBug('contentWindow.location is readable cross-origin, but location.reload() throws a SecurityError')
     const errors: string[] = []
     page.on('pageerror', err => errors.push(err.message))
     const frame = await mountFrame(page, { src: crossOriginFixture(page, 'child.html') })

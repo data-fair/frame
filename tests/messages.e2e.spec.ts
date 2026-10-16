@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, childFrame, events, fixture, crossOriginFixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, childFrame, events, fixture, crossOriginFixture } from './support.ts'
 
 test.describe('messages', () => {
   test.beforeEach(async ({ page }) => { await openParent(page) })
@@ -60,7 +60,6 @@ test.describe('messages', () => {
   })
 
   test('should ignore messages that are not from the protocol', async ({ page }) => {
-    knownBug('a null message makes isVIframeUiNotif throw in the message listener')
     const errors: string[] = []
     page.on('pageerror', err => errors.push(err.message))
     await mountFrame(page, { src: fixture('child.html') })

@@ -79,9 +79,10 @@ export function getParentUrl (fullSrc: string, childHref: string, currentParentH
     childUrl.searchParams.forEach((value, key) => {
       for (const syncParam of syncParams) {
         if (!key.match(syncParam.regexp)) continue
-        if (srcUrl?.searchParams.get(key) === value) continue
         const parentKey = syncParam.append ? (syncParam.append + key) : key
-        parentUrl.searchParams.set(parentKey, value)
+        // the value of src is the default one: no need to keep it in the parent, but a previous value must go
+        if (srcUrl.searchParams.get(key) === value) parentUrl.searchParams.delete(parentKey)
+        else parentUrl.searchParams.set(parentKey, value)
         break
       }
     })

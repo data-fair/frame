@@ -116,8 +116,8 @@ export class DFrameElement extends HTMLElement {
   }
 
   set syncPath (value) {
-    if (value !== null) this.setAttribute('sync-params', value)
-    else this.removeAttribute('sync-params')
+    if (value !== null) this.setAttribute('sync-path', value)
+    else this.removeAttribute('sync-path')
   }
 
   get stateChangeEvents () { return this.hasAttribute('state-change-events') }
@@ -356,7 +356,7 @@ export class DFrameElement extends HTMLElement {
       if (this.height) {
         this.log('debug', 'height of iframe based on direct attribute: ' + this.height)
         wrapperHeight = this.height
-      } else if (this.aspectRatio !== null) {
+      } else if (this.aspectRatio !== null && this.aspectRatioHeight) {
         this.log('debug', 'height of iframe based on aspect ratio: ' + this.aspectRatioHeight)
         wrapperHeight = this.aspectRatioHeight + 'px'
       }
@@ -517,7 +517,11 @@ export class DFrameElement extends HTMLElement {
     if (!this.connected) return
     this.log('debug', 'attribute change', name, oldValue, newValue)
     if (name === 'src') this.updateSrc()
-    if (name === 'height') this.updateStyle()
+    if (name === 'height') {
+      // the aspect ratio height is not maintained while a height is set
+      this.updateAspectRatioHeight()
+      this.updateStyle()
+    }
     if (name === 'sync-params') {
       this.updateParsedSyncParams()
       this.updateSrc()
@@ -528,10 +532,6 @@ export class DFrameElement extends HTMLElement {
         this.log('error', 'reload attribute changed but the iframe has no current src')
         return
       }
-      if (!this.iframeElement.contentWindow?.location) {
-        this.log('debug', 'reload attribute changed but no iframe contentWindow, is this a cross domain iframe ?')
-        return
-      }
       if (!this.iframeLoaded) {
         this.log('debug', 'reload attribute changed before initial loading was complete, ignore it')
         return
@@ -539,7 +539,11 @@ export class DFrameElement extends HTMLElement {
       this.log('debug', 'reload iframe with current src', this.currentChildSrc)
       this.childInitialized = false
       this.iframeElement.setAttribute('src', this.currentChildSrc)
-      this.iframeElement.contentWindow.location.reload()
+      try {
+        this.iframeElement.contentWindow?.location.reload()
+      } catch {
+        // cross-origin child: reload() is forbidden, the src attribute set above already navigates the frame
+      }
     }
   }
 }

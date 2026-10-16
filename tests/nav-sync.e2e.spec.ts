@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, events, fixture, crossOriginFixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, events, fixture, crossOriginFixture } from './support.ts'
 
 const parentSearch = (page: Page) => new URL(page.url()).search
 const iframeSrc = (page: Page) => page.locator('d-frame').last().locator('iframe').getAttribute('src')
@@ -133,7 +133,6 @@ test.describe('navigation syncing with the window adapter', () => {
   })
 
   test('should set the sync-path attribute with the syncPath property', async ({ page }) => {
-    knownBug('the syncPath setter writes the sync-params attribute')
     await openParent(page)
     const frame = await mountFrame(page, { src: fixture('child.html') })
     await frame.evaluate((el: any) => { el.syncPath = 'p' })

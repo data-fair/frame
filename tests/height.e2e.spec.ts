@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, wrapperHeight, fixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, wrapperHeight, fixture } from './support.ts'
 
 test.describe('height', () => {
   test.beforeEach(async ({ page }) => { await openParent(page) })
@@ -41,7 +41,6 @@ test.describe('height', () => {
   })
 
   test('should fall back to the aspect ratio when the height attribute is removed', async ({ page }) => {
-    knownBug('the aspect ratio height was never computed while height was set, the wrapper gets "height:undefinedpx"')
     const frame = await mountFrame(page, { src: fixture('plain.html'), height: '300px', 'aspect-ratio': '2' })
     await expect.poll(() => wrapperHeight(page)).toBe(300)
     await frame.evaluate(el => el.removeAttribute('height'))
@@ -93,14 +92,21 @@ test.describe('height', () => {
     await expect.poll(() => wrapperHeight(page)).toBe(200)
   })
 
-  test('should get back the height of the child after a reinit-height message', async ({ page }) => {
-    knownBug('the child does not reset its last sent height, an unchanged height is never sent again')
+  test('should send the height again after a reinit-height, even if it did not change', async ({ page }) => {
     await mountFrame(page, { src: fixture('child.html'), resize: '', height: '120px' })
     const child = await initializedChild(page)
     await expect.poll(() => wrapperHeight(page)).toBe(200)
-    await child.evaluate(() => { (window as any).dFrameContent.reinitHeight() })
+    // the child goes to a page that fills the frame (like the full pages of portals): no measured element
+    await child.evaluate(() => {
+      (window as any).previousPage = document.getElementById('content')!
+      ;(window as any).previousPage.remove()
+      ;(window as any).dFrameContent.reinitHeight()
+    })
     await expect.poll(() => wrapperHeight(page)).toBe(120)
-    await child.evaluate(() => { document.body.appendChild(document.createElement('span')) })
+    await page.waitForTimeout(200)
+    expect(await wrapperHeight(page)).toBe(120)
+    // then back to a page with the same height as before
+    await child.evaluate(() => { document.body.prepend((window as any).previousPage) })
     await expect.poll(() => wrapperHeight(page)).toBe(200)
   })
 

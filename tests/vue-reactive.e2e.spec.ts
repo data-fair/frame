@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Frame } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, childFrame, fixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, childFrame, fixture } from './support.ts'
 
 const params = (target: Page | Frame) => target.evaluate(() => ({ ...(window as any).params }))
 
@@ -21,7 +21,6 @@ test.describe('navigation syncing with vue reactive params', () => {
   })
 
   test('should remove a param in the child when it is removed in the parent', async ({ page }) => {
-    knownBug('applySearchParams splices index -1 for a new key and keeps a removed one')
     await openParent(page, fixture('reactive-parent.html') + '?a=1&b=2')
     await mountFrame(page, { src: fixture('reactive-child.html'), 'sync-params': '' })
     const child = await initializedChild(page)

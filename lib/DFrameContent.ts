@@ -115,6 +115,7 @@ export default class DFrameContent {
         if (!this.parentUrlListeners[message[2]]) {
           this.log('error', `received getParentUrlResponse message but no matching callback is registered: ${message[2]}`)
         } else {
+          this.parentUrlResults[message[2]] = message[3]
           for (const listener of this.parentUrlListeners[message[2]]) {
             listener(message[3])
           }
@@ -140,6 +141,8 @@ export default class DFrameContent {
   }
 
   public reinitHeight () {
+    // the parent forgets the height, the next one must be sent even if it did not change
+    this.lastHeight = 0
     this.postMessageToParent(['df-child', 'reinit-height'])
   }
 
@@ -150,11 +153,13 @@ export default class DFrameContent {
       listener(childHref)
       return
     }
-    if (this.parentUrlResults[childHref]) {
-      listener(this.parentUrlResults[childHref])
+    if (this.parentUrlListeners[childHref]) {
+      // the parent already sends the updates of this URL, the result is known or on its way
+      this.parentUrlListeners[childHref].push(listener)
+      if (childHref in this.parentUrlResults) listener(this.parentUrlResults[childHref])
+      return
     }
-    this.parentUrlListeners[childHref] = this.parentUrlListeners[childHref] ?? []
-    this.parentUrlListeners[childHref].push(listener)
+    this.parentUrlListeners[childHref] = [listener]
     this.postMessageToParent(['df-child', 'addParentUrlListener', childHref])
   }
 
@@ -164,6 +169,7 @@ export default class DFrameContent {
       this.parentUrlListeners[childHref] = this.parentUrlListeners[childHref].filter(cb => cb !== listener)
       if (!this.parentUrlListeners[childHref].length) {
         delete this.parentUrlListeners[childHref]
+        delete this.parentUrlResults[childHref]
         this.postMessageToParent(['df-child', 'removeParentUrlListener', childHref])
       }
     }

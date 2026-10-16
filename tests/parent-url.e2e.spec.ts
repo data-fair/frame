@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { openParent, mountFrame, initializedChild, fixture, knownBug } from './support.ts'
+import { openParent, mountFrame, initializedChild, fixture } from './support.ts'
 
 // a child that renders links must point them to the parent page, so that they can be opened in a new tab
 test.describe('parent URL listeners', () => {
@@ -22,7 +22,6 @@ test.describe('parent URL listeners', () => {
   })
 
   test('should call each listener of the same URL once', async ({ page }) => {
-    knownBug('parentUrlResults is never filled, every new listener makes the parent answer all the listeners of the URL again')
     await openParent(page)
     await mountFrame(page, { src: fixture('child.html'), 'sync-params': 'page' })
     const child = await initializedChild(page)
