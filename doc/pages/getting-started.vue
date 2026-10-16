@@ -20,7 +20,7 @@
       <pre>&lt;script&gt;
   import '@data-fair/frame/lib/d-frame.js'
 &lt;/script&gt;
-&lt;d-frame src="..." /&gt;</pre>
+&lt;d-frame src="..."&gt;&lt;/d-frame&gt;</pre>
     </code-block>
 
     <code-block
@@ -39,15 +39,15 @@ import '@data-fair/frame/lib/d-frame-content.js'</pre>
       language="markup"
       caption="Parent page"
     >
-      <pre>&lt;script src="https://cdn.jsdelivr.net/npm/@data-fair/frame@0/dist/d-frame.min.js" /&gt;
-&lt;d-frame src="..." /&gt;</pre>
+      <pre>&lt;script src="https://cdn.jsdelivr.net/npm/@data-fair/frame@0/dist/d-frame.min.js"&gt;&lt;/script&gt;
+&lt;d-frame src="..."&gt;&lt;/d-frame&gt;</pre>
     </code-block>
 
     <code-block
       language="markup"
       caption="Child page"
     >
-      <pre>&lt;script src="https://cdn.jsdelivr.net/npm/@data-fair/frame@0/dist/d-frame-content.min.js" /&gt;</pre>
+      <pre>&lt;script src="https://cdn.jsdelivr.net/npm/@data-fair/frame@0/dist/d-frame-content.min.js"&gt;&lt;/script&gt;</pre>
     </code-block>
 
     <h2 class="text-h4 mt-6 mb-3">

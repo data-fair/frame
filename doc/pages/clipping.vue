@@ -39,7 +39,7 @@
       resize
       class="border-dashed border-md border-text-info border-opacity-100 pa-2"
     >
-      <div slot="loader">
+      <div slot="loading">
         <v-skeleton-loader type="paragraph" />
       </div>
     </d-frame>
