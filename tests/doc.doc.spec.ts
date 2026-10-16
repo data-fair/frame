@@ -45,11 +45,11 @@ test.describe('documentation examples', () => {
       await frames.nth(i).frameLocator('iframe').getByRole('button', { name: 'Go to child' }).click()
       await expect(frames.nth(i).frameLocator('iframe').getByText('This is a frame in a subdirectory')).toBeVisible()
     }
-    const url = new URL(page.url())
-    expect(url.searchParams.get('path1')).toBe('child')
-    expect(url.searchParams.get('path2')).toBe('child')
-    expect(url.hash).toBe('#child')
-    expect(url.pathname).toBe('/frame/main/nav-sync-path/child')
+    // the navigations of the parent router are asynchronous
+    await expect.poll(() => {
+      const url = new URL(page.url())
+      return [url.searchParams.get('path1'), url.searchParams.get('path2'), url.hash, url.pathname]
+    }).toEqual(['child', 'child', '#child', '/frame/main/nav-sync-path/child'])
     // every child is back at its path when the parent page is reloaded
     await page.reload()
     for (let i = 0; i < 4; i++) {
