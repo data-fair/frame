@@ -1,5 +1,6 @@
 import { isInitParentMessage, isMouseEventMessage, isUpdateSrcMessage, type MouseEventMessage, type ChildMessage, type Notif, isParentUrlMessage } from './messages.js'
 import inIframe from './utils/in-iframe.js'
+import { isHttpUrl } from './utils/url.js'
 
 const windowEventTypes = [
   'animationstart',
@@ -98,7 +99,12 @@ export default class DFrameContent {
         this.initialized = true
       }
       if (isUpdateSrcMessage(message)) {
-        const newSrc = message[2].startsWith('/') ? window.location.origin + message[2] : message[2]
+        // the parent can be any page, it must not be able to run code in this window (javascript: URL)
+        if (!isHttpUrl(message[2], window.location.href)) {
+          this.log('error', 'refused to navigate to a src that is not a http(s) URL', message[2])
+          return
+        }
+        const newSrc = new URL(message[2], window.location.href).href
         if (newSrc === window.location.href) return
         this.log('debug', `update src ${window.location.href} -> ${newSrc}`)
         if (this.options.updateSrc) {
@@ -112,7 +118,10 @@ export default class DFrameContent {
         this.applySyncedMouseEvent(message)
       }
       if (isParentUrlMessage(message)) {
-        if (!this.parentUrlListeners[message[2]]) {
+        if (!isHttpUrl(message[3])) {
+          // the result is used as a link, it must not be able to run code
+          this.log('error', 'refused a parent URL that is not a http(s) URL', message[3])
+        } else if (!this.parentUrlListeners[message[2]]) {
           this.log('error', `received getParentUrlResponse message but no matching callback is registered: ${message[2]}`)
         } else {
           this.parentUrlResults[message[2]] = message[3]
