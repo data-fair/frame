@@ -17,7 +17,7 @@
     </p>
 
     <p class="mb-4">
-      In the Vue ecosystem this capability is wrapped in a <code>useDFrameParentUrls</code> composable for ease of use.
+      In the Vue ecosystem this capability is wrapped in a <code>useParentUrl</code> composable for ease of use (<code>@data-fair/frame/lib/vue-router/use-parent-url.js</code>).
     </p>
 
     <v-row class="mt-4">

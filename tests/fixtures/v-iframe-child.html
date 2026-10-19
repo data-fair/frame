@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>d-frame test v-iframe compat child</title>
+  <style>body { margin: 0; } #content { height: 200px; }</style>
+</head>
+<body>
+  <div id="content" data-iframe-height></div>
+  <script type="module">
+    import { reactive, watch } from 'vue'
+
+    // a legacy application written for v-iframe: it declares its options on window
+    const params = reactive(Object.fromEntries(new URL(window.location.href).searchParams))
+    watch(params, () => {
+      const url = new URL(window.location.href)
+      url.search = new URLSearchParams(params).toString()
+      window.history.replaceState(null, '', url)
+    })
+    window.params = params
+    window.loadMarker = Math.random()
+    window.vIframeOptions = { reactiveParams: params }
+    await import('/lib/v-iframe-compat/d-frame-content.ts')
+  </script>
+</body>
+</html>

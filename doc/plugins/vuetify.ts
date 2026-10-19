@@ -1,6 +1,5 @@
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
-import colors from 'vuetify/lib/util/colors.mjs'
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 
 export default defineNuxtPlugin((nuxtApp) => {

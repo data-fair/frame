@@ -20,12 +20,21 @@ class VueRouterDFrameStateChangeAdapter implements StateChangeAdapter {
     let newRoute = newUrl.href.replace(urlPrefix, '')
     if (!newRoute.startsWith('/')) newRoute = '/' + newRoute
     element.log('debug', 'apply state change on vue.router', action, newRoute)
-    if (action === 'push') this.router.push(newRoute)
-    if (action === 'replace') this.router.replace(newRoute)
+    // a guard that throws rejects the navigation without calling afterEach: the parent stays on its URL,
+    // the child is brought back to it like after an aborted navigation
+    const onError = (err: unknown) => {
+      element.log('error', 'failed to apply state change on vue.router', err)
+      element.updateSrc()
+    }
+    if (action === 'push') this.router.push(newRoute).catch(onError)
+    if (action === 'replace') this.router.replace(newRoute).catch(onError)
   }
 
   onStateChange (callback: () => void): () => void {
-    return this.router.afterEach(callback)
+    // a cancelled navigation is superseded by a newer one: syncing the child from the parent URL
+    // would send back stale params while the child has already moved on (fast clicks in the child).
+    // An aborted one (4 = NavigationFailureType.aborted) was refused by a guard: the child must go back to the parent URL
+    return this.router.afterEach((_to, _from, failure) => { if (!failure || failure.type === 4) callback() })
   }
 }
 

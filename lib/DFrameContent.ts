@@ -1,42 +1,30 @@
 import { isInitParentMessage, isMouseEventMessage, isUpdateSrcMessage, type MouseEventMessage, type ChildMessage, type Notif, isParentUrlMessage } from './messages.js'
 import inIframe from './utils/in-iframe.js'
+import { isHttpUrl } from './utils/url.js'
 
+// prefixed variants are not listed: browsers do not fire them when there is an unprefixed listener
 const windowEventTypes = [
   'animationstart',
-  'webkitAnimationStart',
   'animationiteration',
-  'webkitAnimationIteration',
   'animationend',
-  'webkitAnimationEnd',
   'input',
   'mouseup',
   'mousedown',
   'orientationchange',
   'afterprint',
   'beforeprint',
-  'readystatechange',
   'touchstart',
   'touchend',
   'touchcancel',
   'transitionstart',
-  'webkitTransitionStart',
-  'MSTransitionStart',
-  'oTransitionStart',
-  'otransitionstart', 'transitioniteration',
-  'webkitTransitionIteration',
-  'MSTransitionIteration',
-  'oTransitionIteration',
-  'otransitioniteration', 'transitionend',
-  'webkitTransitionEnd',
-  'MSTransitionEnd',
-  'oTransitionEnd',
-  'otransitionend', 'resize'
+  'transitionend',
+  'resize'
 ]
 
 export type DFrameContentOptions = { updateSrc?: (src: string, instance: DFrameContent) => void }
 
 declare global {
-  interface Window { __d_frame__content: DFrameContent }
+  interface Window { __d_frame__content?: DFrameContent }
 }
 
 export default class DFrameContent {
@@ -98,7 +86,12 @@ export default class DFrameContent {
         this.initialized = true
       }
       if (isUpdateSrcMessage(message)) {
-        const newSrc = message[2].startsWith('/') ? window.location.origin + message[2] : message[2]
+        // the parent can be any page, it must not be able to run code in this window (javascript: URL)
+        if (!isHttpUrl(message[2], window.location.href)) {
+          this.log('error', 'refused to navigate to a src that is not a http(s) URL', message[2])
+          return
+        }
+        const newSrc = new URL(message[2], window.location.href).href
         if (newSrc === window.location.href) return
         this.log('debug', `update src ${window.location.href} -> ${newSrc}`)
         if (this.options.updateSrc) {
@@ -108,13 +101,17 @@ export default class DFrameContent {
           window.location.href = newSrc
         }
       }
-      if (isMouseEventMessage(message)) {
+      if (isMouseEventMessage(message) && this.mouseEventTypes.includes(message[2])) {
         this.applySyncedMouseEvent(message)
       }
       if (isParentUrlMessage(message)) {
-        if (!this.parentUrlListeners[message[2]]) {
+        if (!isHttpUrl(message[3])) {
+          // the result is used as a link, it must not be able to run code
+          this.log('error', 'refused a parent URL that is not a http(s) URL', message[3])
+        } else if (!this.parentUrlListeners[message[2]]) {
           this.log('error', `received getParentUrlResponse message but no matching callback is registered: ${message[2]}`)
         } else {
+          this.parentUrlResults[message[2]] = message[3]
           for (const listener of this.parentUrlListeners[message[2]]) {
             listener(message[3])
           }
@@ -140,6 +137,8 @@ export default class DFrameContent {
   }
 
   public reinitHeight () {
+    // the parent forgets the height, the next one must be sent even if it did not change
+    this.lastHeight = 0
     this.postMessageToParent(['df-child', 'reinit-height'])
   }
 
@@ -150,11 +149,13 @@ export default class DFrameContent {
       listener(childHref)
       return
     }
-    if (this.parentUrlResults[childHref]) {
-      listener(this.parentUrlResults[childHref])
+    if (this.parentUrlListeners[childHref]) {
+      // the parent already sends the updates of this URL, the result is known or on its way
+      this.parentUrlListeners[childHref].push(listener)
+      if (childHref in this.parentUrlResults) listener(this.parentUrlResults[childHref])
+      return
     }
-    this.parentUrlListeners[childHref] = this.parentUrlListeners[childHref] ?? []
-    this.parentUrlListeners[childHref].push(listener)
+    this.parentUrlListeners[childHref] = [listener]
     this.postMessageToParent(['df-child', 'addParentUrlListener', childHref])
   }
 
@@ -164,15 +165,18 @@ export default class DFrameContent {
       this.parentUrlListeners[childHref] = this.parentUrlListeners[childHref].filter(cb => cb !== listener)
       if (!this.parentUrlListeners[childHref].length) {
         delete this.parentUrlListeners[childHref]
+        delete this.parentUrlResults[childHref]
         this.postMessageToParent(['df-child', 'removeParentUrlListener', childHref])
       }
     }
   }
 
   private currentSyncedMouseEvents: Set<MouseEvent['type']> = new Set()
+  private mouseEventTypes: MouseEvent['type'][] = []
 
   private initMouseEvents (types: MouseEvent['type'][]) {
     this.log('debug', 'initMouseEvents')
+    this.mouseEventTypes = types
     for (const eventType of types) {
       document.addEventListener(eventType, (e) => {
         if (!(e instanceof MouseEvent)) return

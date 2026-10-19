@@ -16,3 +16,13 @@ export function getUrlRelativePath (srcUrl: URL, currentUrl: URL) {
   if (!currentUrl.pathname.startsWith(srcDirectory)) return currentUrl.pathname
   return currentUrl.pathname.replace(srcDirectory, '')
 }
+
+// a URL that can be navigated to or used as a link without running code (no javascript:, data:...)
+export function isHttpUrl (value: unknown, base?: string): value is string {
+  if (typeof value !== 'string') return false
+  try {
+    return ['http:', 'https:'].includes(new URL(value, base).protocol)
+  } catch {
+    return false
+  }
+}

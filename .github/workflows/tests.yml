@@ -1,0 +1,45 @@
+name: Quality checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+        cache-dependency-path: |
+          package-lock.json
+          doc/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci && npm --prefix doc ci
+
+    - name: Lint
+      run: npm run lint && npm --prefix doc run lint
+
+    - name: Type check
+      run: npm run check-types
+
+    - name: Install browser
+      run: npx playwright install --with-deps chromium
+
+    - name: Run tests
+      run: npm test
+
+    # also when a test only passed on retry, to keep the trace of its first failure
+    - name: Upload test results
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: tests/output/
+        retention-days: 7

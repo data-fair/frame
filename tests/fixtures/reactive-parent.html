@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>d-frame test vue-reactive parent</title>
+  <style>body { margin: 0; width: 800px; }</style>
+</head>
+<body>
+  <script type="module">
+    import '/lib/d-frame.ts'
+    import { reactive, watch } from 'vue'
+    import createStateChangeAdapter from '/lib/vue-reactive/state-change-adapter.ts'
+
+    // reactive query params mirrored in the URL, like reactiveSearchParams from @data-fair/lib-vue
+    const params = reactive(Object.fromEntries(new URL(window.location.href).searchParams))
+    watch(params, () => {
+      const url = new URL(window.location.href)
+      url.search = new URLSearchParams(params).toString()
+      window.history.replaceState(null, '', url)
+    })
+    window.params = params
+
+    window.mountFrame = (attrs = {}) => {
+      const frame = document.createElement('d-frame')
+      for (const [key, value] of Object.entries(attrs)) frame.setAttribute(key, value)
+      frame.adapter = createStateChangeAdapter(params)
+      document.body.appendChild(frame)
+      return frame
+    }
+    window.parentReady = true
+  </script>
+</body>
+</html>

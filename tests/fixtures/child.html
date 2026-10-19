@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>d-frame test child</title>
+  <style>body { margin: 0; } #content { height: 200px; }</style>
+</head>
+<body>
+  <div id="content" data-iframe-height></div>
+  <script type="module">
+    import DFrameContent from '/lib/DFrameContent.ts'
+
+    // everything the parent sends, to assert on the protocol itself
+    window.received = []
+    window.addEventListener('message', (e) => { if (e.source === window.parent) window.received.push(e.data) })
+    window.mouseEvents = []
+    window.mouseModifiers = []
+    for (const type of ['click', 'mousedown', 'mouseup', 'dblclick']) {
+      document.addEventListener(type, (e) => {
+        window.mouseEvents.push(type)
+        window.mouseModifiers.push({ altKey: e.altKey, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, metaKey: e.metaKey })
+      })
+    }
+
+    window.dFrameContent = new DFrameContent()
+  </script>
+</body>
+</html>
