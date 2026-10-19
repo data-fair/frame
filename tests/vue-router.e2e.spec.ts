@@ -70,7 +70,7 @@ test.describe('navigation syncing with vue-router on both sides', () => {
     expect(await parentRoute(page)).toBe('/')
   })
 
-  test('should report a guard of the parent that throws, without an unhandled rejection', async ({ page }) => {
+  test('should report a guard of the parent that throws and resync the child, without an unhandled rejection', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', err => errors.push(err.message))
     const logs: string[] = []
@@ -80,6 +80,8 @@ test.describe('navigation syncing with vue-router on both sides', () => {
     await page.evaluate(() => { (window as any).guardThrow = true })
     await childNavigate(child, { page: '2' })
     await expect.poll(() => logs.some(l => l.includes('failed to apply state change on vue.router'))).toBe(true)
+    // like an aborted navigation, the child must not stay on a state that the parent refused
+    await expect.poll(() => childRoute(child)).toBe('/')
     expect(errors).toEqual([])
     expect(await parentRoute(page)).toBe('/')
   })
