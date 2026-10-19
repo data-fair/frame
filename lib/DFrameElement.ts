@@ -324,7 +324,8 @@ export class DFrameElement extends HTMLElement {
   }
 
   updateSrc () {
-    if (!this.connected) return
+    // an empty src is not known yet (<d-frame :src="url">), resolved against the page it would load the parent itself
+    if (!this.connected || !this.src) return
 
     for (const [childHref, existingParentUrl] of Object.entries(this.parentUrlListeners)) {
       const parentUrl = getParentUrl(this.fullSrc, childHref, window.location.href, this.parsedSyncParams, this.syncPath)

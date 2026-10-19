@@ -57,6 +57,20 @@ test.describe('loading status', () => {
     await expect.poll(() => errors).toEqual(['src is a required attribute'])
   })
 
+  for (const attrs of [{}, { 'sync-params': '' }] as Record<string, string>[]) {
+    test(`should wait for an empty src to be set, without loading the parent page in the iframe ${JSON.stringify(attrs)}`, async ({ page }) => {
+      const errors: string[] = []
+      page.on('pageerror', err => errors.push(err.message))
+      // like <d-frame :src="url"> while url is not known yet
+      const frame = await mountFrame(page, { ...attrs, src: '' })
+      await page.waitForTimeout(300)
+      expect(await frame.locator('iframe').getAttribute('src')).toBeNull()
+      await frame.evaluate((el, src) => el.setAttribute('src', src), fixture('plain.html'))
+      await expect.poll(() => events(page, 'ready')).toHaveLength(1)
+      expect(errors).toEqual([])
+    })
+  }
+
   test('should emit ready only once in resize mode, whatever the number of heights', async ({ page }) => {
     await mountFrame(page, { src: fixture('child.html'), resize: '' })
     const child = await initializedChild(page)
